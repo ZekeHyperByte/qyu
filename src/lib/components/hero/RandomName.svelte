@@ -50,7 +50,7 @@
     </div>
   {:else}
     <!-- Three-layer pill container with counter outside -->
-    <div class="flex items-center">
+    <div class="relative flex items-center justify-center">
       <!-- Image frame -->
       <div class="relative">
         <!-- Layer 3: Black pill (outer frame - 2px wider than white) -->
@@ -71,8 +71,8 @@
         </div>
       </div>
       
-      <!-- Counter positioned outside on the right -->
-      <div class="flex flex-col items-center ml-3">
+      <!-- Counter positioned outside on the right (absolute, not part of flow) -->
+      <div class="absolute left-full ml-3 flex flex-col items-center">
         <div class="h-6 w-8 overflow-hidden relative">
           {#key currentIndex}
             <span 
@@ -82,7 +82,8 @@
             </span>
           {/key}
         </div>
-        <span class="text-black text-[10px] font-mono mt-1">41</span>
+        <div class="w-4 h-[1px] bg-black my-1"></div>
+        <span class="text-black text-[10px] font-mono">41</span>
       </div>
     </div>
     

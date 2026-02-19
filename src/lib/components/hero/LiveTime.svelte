@@ -2,6 +2,7 @@
   import { onMount, onDestroy } from 'svelte';
   
   let currentTime = $state('');
+  let timeZone = $state('');
   let intervalId: ReturnType<typeof setInterval>;
   
   function updateTime() {
@@ -12,7 +13,16 @@
     currentTime = `${hours}:${minutes}:${seconds}`;
   }
   
+  function getTimeZone() {
+    // Get timezone abbreviation (e.g., WIB, PST, EST)
+    const timeZoneName = new Intl.DateTimeFormat('en-US', {
+      timeZoneName: 'short'
+    }).formatToParts(new Date()).find(part => part.type === 'timeZoneName')?.value || '';
+    return timeZoneName;
+  }
+  
   onMount(() => {
+    timeZone = getTimeZone();
     updateTime(); // Initial time
     intervalId = setInterval(updateTime, 1000);
   });
@@ -22,6 +32,7 @@
   });
 </script>
 
-<div class="font-mono text-xs sm:text-sm md:text-base text-black tracking-wider">
-  {currentTime}
+<div class="font-mono text-xs sm:text-sm md:text-base tracking-wider">
+  <span class="text-black">{currentTime}</span>
+  <span class="text-red-500">{timeZone}</span>
 </div>

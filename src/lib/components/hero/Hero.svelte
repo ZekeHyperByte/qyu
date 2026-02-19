@@ -6,7 +6,7 @@
 </script>
 
 <div id="home" class="min-h-screen w-full bg-white p-2 sm:p-3 md:p-6 lg:p-8">
-  <div class="min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-1.5rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] w-full border border-black sm:border-2 rounded md:rounded-lg lg:rounded-xl relative flex flex-col">
+  <div class="min-h-[calc(100vh-1rem)] sm:min-h-[calc(100vh-1.5rem)] md:min-h-[calc(100vh-3rem)] lg:min-h-[calc(100vh-4rem)] w-full border border-black sm:border-2 relative flex flex-col items-center">
     
     <!-- Time - Top Left -->
     <div class="absolute top-2 left-2 sm:top-3 sm:left-3 md:top-6 md:left-6 z-10">
@@ -18,16 +18,19 @@
       <Location />
     </div>
     
+    <!-- Spacer to position image from top -->
+    <div class="h-32"></div>
+    
     <!-- Main Content - Centered -->
-    <div class="flex-1 flex flex-col items-center justify-center px-2 sm:px-3 md:px-8 lg:px-16">
+    <div class="flex flex-col items-center justify-center px-2 sm:px-3 md:px-8 lg:px-16">
       <!-- Animated Name -->
-      <div class="w-full max-w-[200px] sm:max-w-[280px] md:max-w-md lg:max-w-2xl mx-auto mb-4 sm:mb-6 md:mb-12">
+      <div class="w-full max-w-[200px] sm:max-w-[280px] md:max-w-md lg:max-w-2xl mx-auto mb-2 sm:mb-3 md:mb-4">
         <RandomName />
       </div>
     </div>
     
     <!-- Navigation - Bottom -->
-    <div class="pb-3 sm:pb-4 md:pb-8 px-2 sm:px-3 -mt-4">
+    <div class="pb-3 sm:pb-4 md:pb-8 px-2 sm:px-3 mt-20">
       <TransparentNav />
     </div>
     
