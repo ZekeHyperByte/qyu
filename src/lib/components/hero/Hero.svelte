@@ -27,7 +27,7 @@
     </div>
     
     <!-- Navigation - Bottom -->
-    <div class="pb-3 sm:pb-4 md:pb-8 px-2 sm:px-3 -mt-5">
+    <div class="pb-3 sm:pb-4 md:pb-8 px-2 sm:px-3 -mt-4">
       <TransparentNav />
     </div>
     

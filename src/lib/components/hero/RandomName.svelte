@@ -49,37 +49,40 @@
       <span class="text-black text-sm">Loading...</span>
     </div>
   {:else}
-    <!-- Three-layer pill container -->
-    <div class="relative">
-      <!-- Layer 3: Black pill (outer frame - 2px wider than white) -->
-      <div class="bg-black rounded-[32px] p-[2px] relative z-10">
-        <!-- Layer 2: White pill (middle frame - 4px gap around image) -->
-        <div class="bg-white rounded-[30px] p-[4px]">
-          <!-- Layer 1: Image container with 4:3 aspect ratio -->
-          <div class="relative rounded-[26px] overflow-hidden" style="aspect-ratio: 4/3; width: min(500px, 70vw); max-height: 35vh;">
-            <!-- Single image with hard cut -->
-            <img 
-              src={currentImage} 
-              alt="Qyu"
-              class="w-full h-full object-cover"
-              loading="eager"
-            />
-            
-            <!-- Counter positioned on right edge -->
-            <div class="absolute right-2 top-1/2 -translate-y-1/2 flex flex-col items-center">
-              <div class="h-5 w-6 overflow-hidden relative bg-black/50 rounded px-1">
-                {#key currentIndex}
-                  <span 
-                    class="text-white text-xs font-mono tracking-wider whitespace-nowrap h-5 flex items-center justify-center animate-slide"
-                  >
-                    {currentIndex + 1}
-                  </span>
-                {/key}
-              </div>
-              <span class="text-white text-[8px] font-mono mt-0.5">41</span>
+    <!-- Three-layer pill container with counter outside -->
+    <div class="flex items-center">
+      <!-- Image frame -->
+      <div class="relative">
+        <!-- Layer 3: Black pill (outer frame - 2px wider than white) -->
+        <div class="bg-black rounded-[32px] p-[2px] relative z-10">
+          <!-- Layer 2: White pill (middle frame - 4px gap around image) -->
+          <div class="bg-white rounded-[30px] p-[4px]">
+            <!-- Layer 1: Image container with 4:3 aspect ratio -->
+            <div class="relative rounded-[26px] overflow-hidden" style="aspect-ratio: 4/3; width: min(500px, 70vw); max-height: 35vh;">
+              <!-- Single image with hard cut -->
+              <img 
+                src={currentImage} 
+                alt="Qyu"
+                class="w-full h-full object-cover"
+                loading="eager"
+              />
             </div>
           </div>
         </div>
+      </div>
+      
+      <!-- Counter positioned outside on the right -->
+      <div class="flex flex-col items-center ml-3">
+        <div class="h-6 w-8 overflow-hidden relative">
+          {#key currentIndex}
+            <span 
+              class="text-black text-sm font-mono font-bold tracking-wider whitespace-nowrap h-6 flex items-center justify-center animate-slide"
+            >
+              {currentIndex + 1}
+            </span>
+          {/key}
+        </div>
+        <span class="text-black text-[10px] font-mono mt-1">41</span>
       </div>
     </div>
     

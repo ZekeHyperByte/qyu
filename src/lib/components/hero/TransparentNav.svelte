@@ -3,13 +3,13 @@
   import { gsap } from 'gsap';
   
   const navItems = [
-    { label: 'Projects', href: '#projects' },
-    { label: 'About', href: '#about' },
     { label: 'Home', href: '#home' },
+    { label: 'Project', href: '#projects' },
+    { label: 'About', href: '#about' },
     { label: 'Contact', href: '#contact' }
   ];
   
-  let activeIndex = $state(2); // Home is default (index 2)
+  let activeIndex = $state(0); // Home is default (index 0)
   let hoveredIndex = $state<number | null>(null);
   let itemRefs: HTMLElement[] = $state([]);
   let containerRef: HTMLElement;
