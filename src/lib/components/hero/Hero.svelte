@@ -3,6 +3,7 @@
   import LiveTime from './LiveTime.svelte';
   import Location from './Location.svelte';
   import TransparentNav from './TransparentNav.svelte';
+  import Lanyard from './Lanyard.svelte';
 </script>
 
 <div id="home" class="min-h-screen w-full bg-white p-2 sm:p-3 md:p-6 lg:p-8">
@@ -16,6 +17,13 @@
     <!-- Location - Top Right -->
     <div class="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-6 md:right-6 z-10">
       <Location />
+    </div>
+    
+    <!-- Lanyard - Hanging from top, positioned beside the name -->
+    <div class="absolute top-0 left-1/2 translate-x-[120px] sm:translate-x-[160px] md:translate-x-[200px] lg:translate-x-[260px] z-20 pointer-events-none">
+      <div class="pointer-events-auto">
+        <Lanyard />
+      </div>
     </div>
     
     <!-- Spacer to position image from top -->
