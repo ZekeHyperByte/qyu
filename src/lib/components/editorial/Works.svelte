@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
   export let isActive = false;
 
@@ -82,8 +81,9 @@
   let imgEls: HTMLElement[] = [];
   let progressFillEl: HTMLElement;
 
-  let entryST: ScrollTrigger | null = null;
-  let mainST: ScrollTrigger | null = null;
+  let entryST: any = null;
+  let mainST: any = null;
+  let ScrollTrigger: any = null;
   let capturedVH = 0; // Viewport height captured at setup time — prevents pin spacer resize on auto-refresh
 
   function checkMobile() {
@@ -141,7 +141,7 @@
   function cleanup() {
     entryST?.kill();
     mainST?.kill();
-    ScrollTrigger.getAll().forEach(t => t.kill());
+    if (ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill());
   }
 
   function setupScrollTriggers() {
@@ -267,7 +267,10 @@
     });
   }
 
-  onMount(() => {
+  onMount(async () => {
+    const { default: ST } = await import('gsap/ScrollTrigger');
+    ScrollTrigger = ST;
+
     checkMobile();
     setInitialState();
     setupScrollTriggers();

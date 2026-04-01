@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import gsap from 'gsap';
-  import { ScrollTrigger } from 'gsap/ScrollTrigger';
   import { lenisStore } from '$lib/stores/lenis';
 
   const navItems = [
@@ -33,7 +32,8 @@
     if (target) lenis.scrollTo(target as HTMLElement, { duration: 1.6, easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)) });
   }
 
-  onMount(() => {
+  onMount(async () => {
+    const { default: ScrollTrigger } = await import('gsap/ScrollTrigger');
     gsap.registerPlugin(ScrollTrigger);
 
     // Detect scroll for nav shadow
