@@ -6,10 +6,14 @@
   onMount(() => {
     const check = () => {
       isDesktop = window.innerWidth >= 768;
+      document.body.style.overflow = isDesktop ? '' : 'hidden';
     };
     check();
     window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
+    return () => {
+      window.removeEventListener('resize', check);
+      document.body.style.overflow = '';
+    };
   });
 </script>
 
@@ -17,10 +21,9 @@
   <div class="mobile-notice">
     <div class="notice-content">
       <div class="notice-icon">
-        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-          <rect x="2" y="3" width="20" height="14" rx="2" ry="2"/>
-          <line x1="8" y1="21" x2="16" y2="21"/>
-          <line x1="12" y1="17" x2="12" y2="21"/>
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="5" y="2" width="14" height="16" rx="2" ry="2"/>
+          <line x1="12" y1="18" x2="12" y2="18"/>
         </svg>
       </div>
       <h1>Desktop Only</h1>
@@ -42,12 +45,18 @@
   }
 
   .notice-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
     color: #f2efe9;
     max-width: 320px;
   }
 
   .notice-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     margin-bottom: 1.5rem;
     color: rgba(242, 239, 234, 0.3);
   }
