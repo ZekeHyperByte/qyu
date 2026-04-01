@@ -1,1 +1,290 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
+
+/* === DESIGN SYSTEM: The Digital Curator — Dark Edition === */
+@theme {
+  /* Dark surface palette */
+  --color-surface: #0c0c0b;
+  --color-surface-bright: #1a1a18;
+  --color-surface-dim: #080807;
+  --color-surface-variant: #1e1e1c;
+  --color-surface-container-lowest: #050504;
+  --color-surface-container-low: #111110;
+  --color-surface-container: #161614;
+  --color-surface-container-high: #1e1e1c;
+  --color-surface-container-highest: #242422;
+
+  --color-on-surface: #e8e8e4;
+  --color-on-surface-variant: #9a9b8e;
+  --color-on-background: #e8e8e4;
+  --color-inverse-surface: #e8e8e4;
+  --color-inverse-on-surface: #0c0c0b;
+
+  --color-primary: #4d7cff;
+  --color-primary-container: #0035c5;
+  --color-primary-fixed: #1a2d5a;
+  --color-primary-fixed-dim: #0d1f45;
+  --color-on-primary: #ffffff;
+  --color-on-primary-container: #b9c3ff;
+  --color-on-primary-fixed: #dde1ff;
+  --color-on-primary-fixed-variant: #b9c3ff;
+  --color-inverse-primary: #0035c5;
+  --color-surface-tint: #4d7cff;
+
+  --color-secondary: #9a9a9a;
+  --color-secondary-container: #2a2a28;
+  --color-secondary-fixed: #2a2a28;
+  --color-secondary-fixed-dim: #1e1e1c;
+  --color-on-secondary: #0c0c0b;
+  --color-on-secondary-container: #c8c6c5;
+  --color-on-secondary-fixed: #e8e8e4;
+  --color-on-secondary-fixed-variant: #c8c6c5;
+
+  --color-tertiary: #ff6b4a;
+  --color-tertiary-container: #8d1c00;
+  --color-tertiary-fixed: #3d1a14;
+  --color-tertiary-fixed-dim: #2a100a;
+  --color-on-tertiary: #ffffff;
+  --color-on-tertiary-container: #ffb4a2;
+  --color-on-tertiary-fixed: #ffdad2;
+  --color-on-tertiary-fixed-variant: #ffb4a2;
+
+  --color-outline: #5a5a54;
+  --color-outline-variant: #2e2e2c;
+
+  --color-error: #ff6b6b;
+  --color-error-container: #5a1a1a;
+  --color-on-error: #ffffff;
+  --color-on-error-container: #ffb4b4;
+
+  /* Typography */
+  --font-headline: 'Montserrat', system-ui, sans-serif;
+  --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-label: 'Plus Jakarta Sans', system-ui, sans-serif;
+
+  /* Border Radius — "Architectural" sharp corners */
+  --radius: 0px;
+  --radius-sm: 0px;
+  --radius-md: 0px;
+  --radius-lg: 0px;
+  --radius-xl: 0px;
+}
+
+/* Base Styles */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+
+html,
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--color-surface);
+  color: var(--color-on-surface);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  position: relative;
+}
+
+/* Soft noise texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  pointer-events: none;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 256px 256px;
+}
+
+/* Selection */
+::selection {
+  background-color: var(--color-primary-fixed);
+  color: var(--color-on-primary-fixed);
+}
+
+/* Material Symbols */
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+/* Marquee Animation */
+@keyframes marquee {
+  0% {
+    transform: translateX(0);
+  }
+
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee 30s linear infinite;
+  will-change: transform;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+/* Fade-in Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+.animation-delay-100 {
+  animation-delay: 0.1s;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+/* Slide-in from left */
+@keyframes slideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  opacity: 0;
+}
+
+/* Underline reveal animation */
+.underline-reveal {
+  position: relative;
+  display: inline-block;
+}
+
+.underline-reveal::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 0;
+  height: 2px;
+  background-color: var(--color-primary);
+  transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.underline-reveal:hover::after {
+  width: 100%;
+}
+
+/* Ghost border utility */
+.border-ghost {
+  border: 1px solid rgba(196, 197, 218, 0.2);
+}
+
+/* CTA gradient */
+.bg-cta-gradient {
+  background: linear-gradient(135deg, #4d7cff, #0035c5);
+}
+
+/* Glassmorphism nav — dark frosted */
+.glass-nav {
+  background-color: rgba(12, 12, 11, 0.80);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  transition: background-color 0.35s ease, box-shadow 0.35s ease;
+}
+
+.glass-nav--scrolled {
+  background-color: rgba(12, 12, 11, 0.95);
+  box-shadow: 0 1px 0 0 rgba(255, 255, 255, 0.06);
+}
+
+/* Ambient shadow - for floating elements */
+.shadow-ambient {
+  box-shadow: 0 24px 48px -12px rgba(26, 28, 27, 0.06);
+}
+
+/* Hover scale-reveal on project cards */
+.project-image {
+  transition: transform 0.7s cubic-bezier(0.16, 1, 0.3, 1), filter 0.7s ease;
+  transform: scale(1.05);
+  filter: grayscale(1);
+}
+
+.project-card:hover .project-image {
+  transform: scale(1);
+  filter: grayscale(0);
+}
+
+/* ── Full-page Swipe Slider ─────────────────────────────────────── */
+
+.slider-container {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+}
+
+.slider-section-obs {
+  height: 100%;
+  width: 100%;
+  top: 0;
+  position: fixed;
+  visibility: hidden;
+}
+
+.slider-section-obs .outer,
+.slider-section-obs .inner {
+  width: 100%;
+  height: 100%;
+  overflow-y: hidden;
+}
+
+.slider-section-obs .bg {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-surface);
+}
