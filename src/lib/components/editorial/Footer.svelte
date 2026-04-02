@@ -1,7 +1,12 @@
 <script lang="ts">
   import { lenisStore } from '$lib/stores/lenis';
+  import { onMount, onDestroy } from 'svelte';
+  import gsap from 'gsap';
 
   export let isActive = false;
+
+  let footerEl: HTMLElement;
+  let layer2El: HTMLElement;
 
   function scrollToTop() {
     const lenis = $lenisStore;
@@ -11,11 +16,49 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
+
+  function handleMouseMove(e: MouseEvent) {
+    if (!footerEl || !layer2El) return;
+    const rect = footerEl.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width;
+    const y = (e.clientY - rect.top) / rect.height;
+
+    const rotateY = (x - 0.5) * 24;
+    const rotateX = (0.5 - y) * 16;
+
+    gsap.to(layer2El, {
+      rotateX,
+      rotateY,
+      duration: 0.5,
+      ease: 'power2.out',
+      overwrite: true
+    });
+  }
+
+  function handleMouseLeave() {
+    if (!layer2El) return;
+    gsap.to(layer2El, {
+      rotateX: 0,
+      rotateY: 0,
+      duration: 0.7,
+      ease: 'power2.out'
+    });
+  }
+
+  onMount(() => {
+    footerEl.addEventListener('mousemove', handleMouseMove);
+    footerEl.addEventListener('mouseleave', handleMouseLeave);
+  });
+
+  onDestroy(() => {
+    footerEl?.removeEventListener('mousemove', handleMouseMove);
+    footerEl?.removeEventListener('mouseleave', handleMouseLeave);
+  });
 </script>
 
-<footer id="contact" class="w-full h-screen min-h-[500px] bg-[#0c0c0b] flex flex-col justify-center p-3 sm:p-5 md:p-6 lg:p-8 xl:p-10">
+<footer id="contact" bind:this={footerEl} class="w-full h-screen min-h-[500px] bg-[#0c0c0b] flex flex-col justify-center p-3 sm:p-5 md:p-6 lg:p-8 xl:p-10">
   
-  <div class="relative w-full h-full max-w-[1700px] mx-auto flex flex-col justify-between overflow-hidden bg-[#0c0c0b] text-[#f2efe9] border border-white/10 rounded-[6px] shadow-2xl">
+  <div class="relative w-full h-full max-w-[1700px] mx-auto flex flex-col justify-between overflow-hidden bg-[#0c0c0b] text-[#f2efe9] border border-white/10 rounded-[6px] shadow-2xl" style="perspective: 1000px;">
     
     <!-- Background Image with Overlay -->
     <div class="absolute inset-0 z-0 select-none pointer-events-none">
@@ -27,6 +70,17 @@
     <div class="absolute inset-0 bg-gradient-to-t from-[#0c0c0b] via-transparent to-[#0c0c0b]/60"></div>
     <div class="absolute inset-0 bg-black/20"></div>
   </div>
+
+    <!-- Layer 2: Cutout with 3D tilt -->
+    <div class="absolute inset-0 z-[1] select-none pointer-events-none overflow-hidden">
+      <img
+        bind:this={layer2El}
+        src="/layer2.png"
+        alt=""
+        class="w-full h-full object-cover object-center"
+        style="transform-style: preserve-3d;"
+      />
+    </div>
 
   <div class="relative z-10 flex flex-col justify-between h-full w-full p-6 sm:p-8 lg:p-10">
     

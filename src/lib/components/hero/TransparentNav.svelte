@@ -1,6 +1,7 @@
 <script lang="ts">
   import StarIndicator from './StarIndicator.svelte';
   import { gsap } from 'gsap';
+  import { lenisStore } from '$lib/stores/lenis';
   
   const navItems = [
     { label: 'Home', href: '#home' },
@@ -136,6 +137,23 @@
     
     // Update active index
     activeIndex = index;
+    
+    // Smooth scroll via Lenis
+    smoothScrollTo(href);
+  }
+  
+  // Smooth scroll using Lenis for buttery easing
+  function smoothScrollTo(href: string) {
+    const lenis = $lenisStore;
+    if (!lenis) return;
+    
+    const target = document.querySelector(href) as HTMLElement;
+    if (!target) return;
+    
+    lenis.scrollTo(target, {
+      duration: 2.2,
+      easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t))
+    });
   }
   
   // Handle hover - move ghost star smoothly
