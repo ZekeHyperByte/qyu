@@ -46,7 +46,7 @@
 
 <section id="story" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center py-32 lg:py-48 px-8 lg:px-10 xl:px-20 bg-[#0c0c0b]">
   <div class="max-w-[1440px] mx-auto w-full">
-    <p class="story-text max-w-[50vw]">
+    <p class="story-text max-w-[90vw] sm:max-w-[70vw] md:max-w-[50vw]">
       {#each words as word, i}
         <span use:collectWord class="story-word-outer"><span class="story-word-inner">{word}</span>{i < words.length - 1 ? ' ' : ''}</span>
       {/each}
@@ -57,7 +57,7 @@
 <style>
   .story-text {
     font-family: var(--font-body);
-    font-size: clamp(1.1rem, 1.8vw, 1.6rem);
+    font-size: clamp(0.95rem, 1.8vw, 1.6rem);
     font-weight: 300;
     color: rgba(232, 232, 228, 0.75);
     line-height: 1.7;
