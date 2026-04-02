@@ -12,8 +12,11 @@
   onMount(async () => {
     if (!browser) return;
 
-    // Force scroll to top on page load
-    window.scrollTo(0, 0);
+    // Lock scroll position immediately during load to prevent mobile scroll jump
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.width = '100%';
+    document.body.style.top = '0';
 
     const [{ default: Lenis }, { default: gsap }, { ScrollTrigger }] = await Promise.all([
       import('lenis'),
@@ -40,7 +43,14 @@
     gsap.ticker.lagSmoothing(0);
 
     // Ensure page starts at top after Lenis takes over
+    window.scrollTo(0, 0);
     lenisInstance.scrollTo(0, { immediate: true });
+
+    // Unlock scroll after Lenis is ready
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.width = '';
+    document.body.style.top = '';
 
     lenisStore.set(lenisInstance);
   });
