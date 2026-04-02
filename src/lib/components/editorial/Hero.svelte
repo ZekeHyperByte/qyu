@@ -43,12 +43,12 @@
   <div
     bind:this={gundamEl}
     style="opacity: 0;"
-    class="absolute right-0 top-0 bottom-0 h-full pointer-events-none z-0 mix-blend-luminosity opacity-40"
+    class="absolute right-0 top-0 bottom-0 h-full pointer-events-none z-0 mix-blend-luminosity opacity-20 md:opacity-40"
   >
     <img
       src="/Gundam3.png"
       alt="Gundam Art"
-      class="h-full w-auto object-contain object-right drop-shadow-2xl"
+      class="h-full w-auto object-contain object-right scale-90 md:scale-100 drop-shadow-2xl"
       fetchpriority="high"
       loading="eager"
     />
