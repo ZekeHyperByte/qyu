@@ -7,6 +7,7 @@
 
   let footerEl: HTMLElement;
   let layer2El: HTMLElement;
+  let isMobile = false;
 
   function scrollToTop() {
     const lenis = $lenisStore;
@@ -18,6 +19,7 @@
   }
 
   function handleMouseMove(e: MouseEvent) {
+    if (isMobile) return;
     if (!footerEl || !layer2El) return;
     const rect = footerEl.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
@@ -36,6 +38,7 @@
   }
 
   function handleMouseLeave() {
+    if (isMobile) return;
     if (!layer2El) return;
     gsap.to(layer2El, {
       rotateX: 0,
@@ -46,13 +49,19 @@
   }
 
   onMount(() => {
-    footerEl.addEventListener('mousemove', handleMouseMove);
-    footerEl.addEventListener('mouseleave', handleMouseLeave);
+    isMobile = window.innerWidth < 768;
+    
+    if (!isMobile) {
+      footerEl.addEventListener('mousemove', handleMouseMove);
+      footerEl.addEventListener('mouseleave', handleMouseLeave);
+    }
   });
 
   onDestroy(() => {
-    footerEl?.removeEventListener('mousemove', handleMouseMove);
-    footerEl?.removeEventListener('mouseleave', handleMouseLeave);
+    if (!isMobile) {
+      footerEl?.removeEventListener('mousemove', handleMouseMove);
+      footerEl?.removeEventListener('mouseleave', handleMouseLeave);
+    }
   });
 </script>
 
