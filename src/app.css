@@ -288,3 +288,44 @@ body::before {
   background-position: center;
   background-color: var(--color-surface);
 }
+
+/* ── Mobile Optimizations ─────────────────────────────────────── */
+@media (max-width: 767px) {
+  /* Improve animation performance on mobile */
+  .animate-marquee {
+    animation-duration: 45s; /* Slower marquee for mobile readability */
+  }
+  
+  /* Ensure touch targets meet minimum 44x44px */
+  button,
+  a[role="button"],
+  .touch-target {
+    min-height: 44px;
+    min-width: 44px;
+  }
+  
+  /* Reduce GPU-intensive effects on mobile */
+  body::before {
+    opacity: 0.02; /* Reduce noise overlay opacity */
+  }
+  
+  /* Improve scroll performance */
+  .will-change-transform {
+    will-change: transform;
+  }
+  
+  /* Ensure text doesn't overflow horizontally */
+  h1, h2, h3, h4, h5, h6 {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    word-break: break-word;
+  }
+}
+
+/* Enhance touch scrolling */
+@media (hover: none) and (pointer: coarse) {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+  }
+}
