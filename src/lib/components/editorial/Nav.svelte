@@ -17,14 +17,23 @@
   let circleFill: HTMLSpanElement;
   let arrowSpan: HTMLSpanElement;
 
-  // Use scroll position rather than old sliderStore
   let scrolled = false;
+  let menuOpen = false;
 
   const PRIMARY = '#4d7cff';
   const WHITE   = '#ffffff';
 
-  // Smooth-scroll via Lenis when clicking nav links
+  function toggleMenu() {
+    menuOpen = !menuOpen;
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+  }
+
   function handleNavClick(e: MouseEvent, href: string) {
+    if (menuOpen) toggleMenu();
     const lenis = $lenisStore;
     if (!lenis) return;
     e.preventDefault();
@@ -120,11 +129,30 @@
     </ul>
 
     <!-- Mobile hamburger -->
-    <button class="md:hidden flex flex-col gap-1.5 p-1" aria-label="Open menu">
-      <span class="w-6 h-0.5 bg-on-surface"></span>
-      <span class="w-4 h-0.5 bg-on-surface"></span>
-      <span class="w-6 h-0.5 bg-on-surface"></span>
+    <button class="md:hidden flex flex-col gap-1.5 p-2 min-w-[44px] min-h-[44px] justify-center items-center" on:click={toggleMenu} aria-label={menuOpen ? 'Close menu' : 'Open menu'} aria-expanded={menuOpen}>
+      <span class="w-6 h-0.5 bg-on-surface transition-all duration-300 {menuOpen ? 'rotate-45 translate-y-2' : ''}"></span>
+      <span class="w-4 h-0.5 bg-on-surface transition-all duration-300 {menuOpen ? 'opacity-0' : ''}"></span>
+      <span class="w-6 h-0.5 bg-on-surface transition-all duration-300 {menuOpen ? '-rotate-45 -translate-y-2' : ''}"></span>
     </button>
   </div>
   <div class="h-px w-full bg-outline-variant/30"></div>
 </nav>
+
+<!-- Mobile menu overlay -->
+{#if menuOpen}
+  <div class="fixed inset-0 z-40 bg-surface/95 backdrop-blur-xl flex flex-col items-center justify-center md:hidden" role="dialog" aria-modal="true" tabindex="-1" on:click={toggleMenu} on:keydown={(e) => { if (e.key === 'Escape') toggleMenu(); }}>
+    <ul class="flex flex-col items-center gap-8">
+      {#each navItems as item}
+        <li>
+          <a
+            href={item.href}
+            on:click={(e) => handleNavClick(e, item.href)}
+            class="font-headline italic text-3xl tracking-tight text-on-surface hover:text-primary transition-colors duration-300"
+          >
+            {item.label}
+          </a>
+        </li>
+      {/each}
+    </ul>
+  </div>
+{/if}

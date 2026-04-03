@@ -6,6 +6,7 @@
   let sectionRef: HTMLElement;
   let headlineSplit: any;
   let ctx: any;
+  let scrambleScrollTrigger: any = null;
 
   const scrambleChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
@@ -33,7 +34,9 @@
   }
 
   onMount(async () => {
-    // Dynamic import to avoid SSR errors
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = window.innerWidth < 768;
+
     const [{ default: ScrollTrigger }, { default: SplitType }] = await Promise.all([
       import('gsap/ScrollTrigger'),
       import('split-type')
@@ -42,10 +45,8 @@
     gsap.registerPlugin(ScrollTrigger);
 
     ctx = gsap.context(() => {
-      // Split headline only
       headlineSplit = new SplitType('.about-headline', { types: 'lines,words' });
 
-      // Dynamically apply gradient safely to the last word ("SURFACE.") so it moves flawlessly with GSAP properties
       if (headlineSplit.words && headlineSplit.words.length > 0) {
         headlineSplit.words[headlineSplit.words.length - 1].classList.add('gradient-text');
       }
@@ -60,29 +61,20 @@
         }
       });
 
-      // Pure mask reveal for the headline
       tl.from(headlineSplit.words, {
         yPercent: 140,
         rotate: 4,
         transformOrigin: "0% 100%",
-        duration: 1.5,
-        stagger: 0.12,
-        ease: 'expo.out',
-      })
-      // CTA button
-      .from('.about-cta', {
-        y: 30,
-        opacity: 0,
-        duration: 1.2,
-        ease: 'power3.out',
-      }, "-=0.8");
+        duration: prefersReducedMotion ? 0 : 1.5,
+        stagger: prefersReducedMotion ? 0 : 0.12,
+        ease: prefersReducedMotion ? 'none' : 'expo.out',
+      });
 
-      // Scramble animation on the subheadline, triggered at the same time as the headline
       const subheadlineEl = sectionRef.querySelector('.subheadline') as HTMLElement;
-      if (subheadlineEl) {
+      if (subheadlineEl && !prefersReducedMotion) {
         const originalText = subheadlineEl.textContent || '';
         let lastProgress = 0;
-        
+
         const scrambleTl = gsap.timeline({
           scrollTrigger: {
             trigger: sectionRef,
@@ -90,20 +82,29 @@
             toggleActions: 'play none none reverse'
           }
         });
-        
+
+        scrambleScrollTrigger = scrambleTl.scrollTrigger;
+
+        const updateInterval = isMobile ? 1000 / 30 : 1000 / 60;
+        let lastUpdateTime = 0;
+
         scrambleTl.to({}, {
-          duration: 1.8,
+          duration: isMobile ? 1.2 : 1.8,
           ease: 'none',
           onUpdate: function() {
+            const now = performance.now();
+            if (now - lastUpdateTime < updateInterval) return;
+            lastUpdateTime = now;
+
             const progress = this.progress();
             const chars = originalText.split('');
             const isReversing = progress < lastProgress;
             lastProgress = progress;
-            
+
             const resolvedCount = isReversing
               ? Math.floor(progress * chars.length)
               : Math.ceil(progress * chars.length);
-            
+
             subheadlineEl.textContent = chars.map((char, i) => {
               if (char === ' ') return ' ';
               if (isReversing ? i >= resolvedCount : i < resolvedCount) return originalText[i];
@@ -119,12 +120,15 @@
             lastProgress = 0;
           }
         });
+      } else if (subheadlineEl && prefersReducedMotion) {
+        gsap.set(subheadlineEl, { opacity: 1 });
       }
     }, sectionRef);
 
   });
 
   onDestroy(() => {
+    if (scrambleScrollTrigger) scrambleScrollTrigger.kill();
     if (ctx) ctx.revert();
     if (headlineSplit) headlineSplit.revert();
   });
@@ -140,14 +144,6 @@
     <p class="subheadline">
       Algorithms that learn. Architecture that scales. Code that connects.
     </p>
-
-    <a href="/profile" class="about-cta">
-      <span>View Full Profile</span>
-      <svg width="16" height="10" viewBox="0 0 16 10" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <path d="M1 5H15M15 5L11 1M15 5L11 9" stroke="currentColor" stroke-width="1.2" stroke-linecap="square"/>
-      </svg>
-      <span class="cta-line"></span>
-    </a>
 
   </div>
 </section>
@@ -193,58 +189,10 @@
 
   @media (max-width: 767px) {
     .subheadline {
-      white-space: nowrap;
+      white-space: normal;
       font-size: clamp(0.65rem, 3.2vw, 0.9rem);
+      padding: 0 0.5rem;
     }
   }
 
-  .about-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    margin-top: clamp(32px, 8vw, 56px);
-    padding: 8px 0;
-    font-family: var(--font-label);
-    font-size: clamp(0.65rem, 2vw, 0.7rem);
-    font-weight: 400;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: rgba(232, 232, 228, 0.35);
-    text-decoration: none;
-    position: relative;
-    cursor: pointer;
-    min-height: 44px;
-  }
-
-  .about-cta span:first-child {
-    transition: letter-spacing 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
-  }
-
-  .about-cta:hover span:first-child {
-    letter-spacing: 0.35em;
-    color: #4d7cff;
-  }
-
-  .about-cta svg {
-    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s ease;
-  }
-
-  .about-cta:hover svg {
-    transform: translateX(6px) scaleX(1.15) rotate(-30deg);
-    color: #4d7cff;
-  }
-
-  .cta-line {
-    position: absolute;
-    bottom: -6px;
-    left: 0;
-    width: 0;
-    height: 1px;
-    background: linear-gradient(90deg, #4d7cff, #0035c5);
-    transition: width 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .about-cta:hover .cta-line {
-    width: 100%;
-  }
-</style>
+  </style>
