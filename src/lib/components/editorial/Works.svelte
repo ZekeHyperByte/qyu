@@ -85,6 +85,12 @@
   // Mobile gallery refs
   let mobileGalleryEl: HTMLElement;
   let currentMobileIndex = 0;
+  
+  // Touch handling for smart swipe detection
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchStartTime = 0;
+  let isHorizontalSwipe = false;
 
   let entryST: any = null;
   let mainST: any = null;
@@ -154,6 +160,64 @@
     const slideWidth = mobileGalleryEl.offsetWidth * 0.85; // 85% width slides
     const scrollPosition = mobileGalleryEl.scrollLeft;
     currentMobileIndex = Math.round(scrollPosition / slideWidth);
+  }
+
+  // Smart touch handlers with directional detection
+  function onTouchStart(e: TouchEvent) {
+    touchStartX = e.touches[0].clientX;
+    touchStartY = e.touches[0].clientY;
+    touchStartTime = Date.now();
+    isHorizontalSwipe = false;
+  }
+
+  function onTouchMove(e: TouchEvent) {
+    if (!mobileGalleryEl) return;
+    
+    const touchX = e.touches[0].clientX;
+    const touchY = e.touches[0].clientY;
+    const deltaX = touchStartX - touchX;
+    const deltaY = touchStartY - touchY;
+    
+    // Determine swipe direction
+    const absX = Math.abs(deltaX);
+    const absY = Math.abs(deltaY);
+    
+    // If clearly horizontal (more horizontal than vertical, and > 30px)
+    if (absX > absY && absX > 30) {
+      isHorizontalSwipe = true;
+      // Prevent default to handle horizontal scroll manually
+      e.preventDefault();
+      
+      // Apply the scroll
+      const slideWidth = mobileGalleryEl.offsetWidth * 0.85;
+      mobileGalleryEl.scrollLeft += deltaX * 0.3; // Smooth drag feel
+      touchStartX = touchX;
+    }
+    // Otherwise let browser handle it (vertical scroll)
+  }
+
+  function onTouchEnd(e: TouchEvent) {
+    if (!mobileGalleryEl || !isHorizontalSwipe) return;
+    
+    const touchEndTime = Date.now();
+    const timeDiff = touchEndTime - touchStartTime;
+    
+    // Snap to nearest slide
+    const slideWidth = mobileGalleryEl.offsetWidth * 0.85;
+    const currentScroll = mobileGalleryEl.scrollLeft;
+    const targetIndex = Math.round(currentScroll / slideWidth);
+    const targetScroll = targetIndex * slideWidth;
+    
+    // Smooth snap animation
+    mobileGalleryEl.scrollTo({
+      left: targetScroll,
+      behavior: 'smooth'
+    });
+    
+    // Update counter after animation
+    setTimeout(() => {
+      currentMobileIndex = targetIndex;
+    }, 150);
   }
 
   function setupScrollTriggers() {
@@ -247,6 +311,11 @@
     // Add scroll listener for mobile gallery
     if (mobileGalleryEl) {
       mobileGalleryEl.addEventListener('scroll', updateCurrentIndex, { passive: true });
+      
+      // Add smart touch handlers for swipe detection
+      mobileGalleryEl.addEventListener('touchstart', onTouchStart, { passive: true });
+      mobileGalleryEl.addEventListener('touchmove', onTouchMove, { passive: false });
+      mobileGalleryEl.addEventListener('touchend', onTouchEnd, { passive: true });
     }
 
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -269,6 +338,9 @@
       window.removeEventListener('resize', onResize);
       if (mobileGalleryEl) {
         mobileGalleryEl.removeEventListener('scroll', updateCurrentIndex);
+        mobileGalleryEl.removeEventListener('touchstart', onTouchStart);
+        mobileGalleryEl.removeEventListener('touchmove', onTouchMove);
+        mobileGalleryEl.removeEventListener('touchend', onTouchEnd);
       }
       cleanup();
     };
@@ -561,7 +633,7 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    touch-action: pan-y; /* Allow vertical scrolling, handle horizontal in JS */
+    touch-action: auto; /* Let JS handle direction detection */
     padding: 10px 20px 20px;
     gap: 16px;
     /* Enable horizontal scrolling while allowing page scroll */
