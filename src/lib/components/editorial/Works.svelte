@@ -82,9 +82,12 @@
   let imgEls: HTMLElement[] = [];
   let progressFillEl: HTMLElement;
 
-  // Mobile refs
-  let mobileSectionEl: HTMLElement;
-  let mobileCardEls: HTMLElement[] = [];
+  // Mobile gallery refs
+  let mobileGalleryEl: HTMLElement;
+  let currentMobileIndex = 0;
+  let isDragging = false;
+  let startX = 0;
+  let scrollLeft = 0;
 
   let entryST: any = null;
   let mainST: any = null;
@@ -149,6 +152,47 @@
     if (ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill());
   }
 
+  // Mobile gallery functions
+  function goToSlide(index: number) {
+    if (!mobileGalleryEl) return;
+    currentMobileIndex = Math.max(0, Math.min(index, N - 1));
+    const slideWidth = mobileGalleryEl.offsetWidth;
+    mobileGalleryEl.scrollTo({
+      left: currentMobileIndex * slideWidth,
+      behavior: 'smooth'
+    });
+  }
+
+  function handleTouchStart(e: TouchEvent | MouseEvent) {
+    isDragging = true;
+    startX = 'touches' in e ? e.touches[0].pageX : e.pageX;
+    scrollLeft = mobileGalleryEl?.scrollLeft || 0;
+  }
+
+  function handleTouchMove(e: TouchEvent | MouseEvent) {
+    if (!isDragging || !mobileGalleryEl) return;
+    e.preventDefault();
+    const x = 'touches' in e ? e.touches[0].pageX : e.pageX;
+    const walk = (startX - x) * 1.5;
+    mobileGalleryEl.scrollLeft = scrollLeft + walk;
+  }
+
+  function handleTouchEnd() {
+    if (!mobileGalleryEl) return;
+    isDragging = false;
+    
+    // Snap to nearest slide
+    const slideWidth = mobileGalleryEl.offsetWidth;
+    const newIndex = Math.round(mobileGalleryEl.scrollLeft / slideWidth);
+    goToSlide(newIndex);
+  }
+
+  function updateCurrentIndex() {
+    if (!mobileGalleryEl) return;
+    const slideWidth = mobileGalleryEl.offsetWidth;
+    currentMobileIndex = Math.round(mobileGalleryEl.scrollLeft / slideWidth);
+  }
+
   function setupScrollTriggers() {
     cleanup();
     gsap.registerPlugin(ScrollTrigger);
@@ -158,30 +202,8 @@
     const itemHeight = getItemHeight();
 
     if (isMobile) {
-      // Mobile: Card scroll animation
-      mobileCardEls.forEach((card, i) => {
-        if (!card) return;
-        
-        gsap.fromTo(card, 
-          { 
-            opacity: 0, 
-            y: 60,
-            scale: 0.95
-          },
-          {
-            opacity: 1,
-            y: 0,
-            scale: 1,
-            duration: 0.8,
-            ease: 'power3.out',
-            scrollTrigger: {
-              trigger: card,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse'
-            }
-          }
-        );
-      });
+      // Mobile: No scroll triggers needed for gallery
+      // The gallery handles its own navigation
       return;
     }
 
@@ -259,6 +281,11 @@
     
     setupScrollTriggers();
 
+    // Add scroll listener for mobile gallery
+    if (mobileGalleryEl) {
+      mobileGalleryEl.addEventListener('scroll', updateCurrentIndex, { passive: true });
+    }
+
     let resizeTimer: ReturnType<typeof setTimeout>;
     const onResize = () => {
       clearTimeout(resizeTimer);
@@ -277,6 +304,9 @@
 
     return () => {
       window.removeEventListener('resize', onResize);
+      if (mobileGalleryEl) {
+        mobileGalleryEl.removeEventListener('scroll', updateCurrentIndex);
+      }
       cleanup();
     };
   });
@@ -390,57 +420,70 @@
   </div>
 </section>
 
-<!-- Mobile Version - Card Stack -->
-<section id="works-mobile" bind:this={mobileSectionEl} class="relative w-full block md:hidden bg-[#0c0c0b] py-16 px-4">
+<!-- Mobile Version - Horizontal Swipe Gallery -->
+<section id="works-mobile" class="relative w-full block md:hidden bg-[#0c0c0b] py-12">
   
-  <!-- Mobile Header with Progress -->
-  <div class="mb-8">
-    <div class="flex items-center justify-between mb-4">
+  <!-- Mobile Header -->
+  <div class="px-5 mb-6">
+    <div class="flex items-center justify-between">
       <div>
         <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/35 mb-1">Selected Works</p>
         <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/20">Vol. 01 — 2023–2025</p>
       </div>
       <!-- Project Counter -->
-      <div class="text-right">
-        <span class="font-headline text-xl font-bold text-white">{projects.length}</span>
-        <span class="font-label text-[10px] text-white/30 uppercase tracking-wider ml-1">Projects</span>
+      <div class="flex items-baseline gap-1">
+        <span class="font-headline text-2xl font-bold text-white">{currentMobileIndex + 1}</span>
+        <span class="font-label text-sm text-white/30">/</span>
+        <span class="font-label text-sm text-white/30">{projects.length}</span>
       </div>
-    </div>
-    
-    <!-- Progress Dots -->
-    <div class="flex items-center gap-2">
-      {#each projects as _, i}
-        <div class="progress-dot" class:active={i === 0}></div>
-      {/each}
     </div>
   </div>
 
-  <!-- Mobile Cards -->
-  <div class="flex flex-col gap-8">
+  <!-- Swipe Instruction -->
+  <div class="px-5 mb-4 flex items-center gap-2 text-white/40">
+    <svg class="w-4 h-4 animate-swipe-hint" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
+    </svg>
+    <span class="font-label text-[10px] uppercase tracking-[0.2em]">Swipe to navigate</span>
+    <svg class="w-4 h-4 animate-swipe-hint-reverse" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H3"/>
+    </svg>
+  </div>
+
+  <!-- Horizontal Gallery -->
+  <div 
+    bind:this={mobileGalleryEl}
+    class="mobile-gallery"
+    on:touchstart={handleTouchStart}
+    on:touchmove={handleTouchMove}
+    on:touchend={handleTouchEnd}
+    on:mousedown={handleTouchStart}
+    on:mousemove={handleTouchMove}
+    on:mouseup={handleTouchEnd}
+    on:mouseleave={handleTouchEnd}
+  >
     {#each projects as project, i}
-      <article 
-        bind:this={mobileCardEls[i]}
-        class="mobile-card group"
-      >
+      <article class="mobile-slide">
         <!-- Image Container -->
-        <div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#1a1a18] mb-5">
+        <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a18] mb-4">
           <img
             src={project.imgUrl}
             alt={project.title}
-            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            class="w-full h-full object-cover object-center"
             loading={i < 2 ? 'eager' : 'lazy'}
+            draggable="false"
           />
           <!-- Year Badge -->
-          <div class="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded">
-            <span class="font-label text-[9px] text-white/70 tracking-wider">{project.year}</span>
+          <div class="absolute top-3 left-3 px-2.5 py-1 bg-black/70 backdrop-blur-sm rounded-md">
+            <span class="font-label text-[10px] text-white/80 tracking-wider">{project.year}</span>
           </div>
         </div>
 
         <!-- Content -->
-        <div class="space-y-4">
+        <div class="px-1">
           <!-- Title & Category -->
-          <div>
-            <h3 class="font-headline text-2xl font-bold text-white mb-1 leading-tight">
+          <div class="mb-3">
+            <h3 class="font-headline text-xl font-bold text-white mb-1 leading-tight">
               {project.title}
             </h3>
             <p class="font-label text-[10px] uppercase tracking-wider text-primary">
@@ -449,58 +492,82 @@
           </div>
 
           <!-- Description -->
-          <p class="font-body text-sm text-white/60 leading-relaxed line-clamp-3">
+          <p class="font-body text-sm text-white/60 leading-relaxed mb-4 line-clamp-3">
             {project.subtitle}
           </p>
 
           <!-- Tags -->
-          <div class="flex flex-wrap gap-2">
-            {#each project.tags as tag}
-              <span class="text-white/50 border border-white/10 px-2.5 py-1 text-[10px] font-label tracking-wide rounded">
+          <div class="flex flex-wrap gap-1.5 mb-4">
+            {#each project.tags.slice(0, 3) as tag}
+              <span class="text-white/50 border border-white/10 px-2 py-0.5 text-[9px] font-label tracking-wide rounded">
                 {tag}
               </span>
             {/each}
+            {#if project.tags.length > 3}
+              <span class="text-white/30 text-[9px] font-label">+{project.tags.length - 3}</span>
+            {/if}
           </div>
 
           <!-- Meta Info -->
           <div class="flex items-center justify-between pt-3 border-t border-white/10">
             <div>
               <p class="font-label text-[9px] uppercase tracking-wider text-white/30 mb-0.5">Client</p>
-              <p class="font-body text-xs text-white/70">{project.client}</p>
+              <p class="font-body text-xs text-white/70 truncate max-w-[120px]">{project.client}</p>
             </div>
-            <div class="text-right">
-              <p class="font-label text-[9px] uppercase tracking-wider text-white/30 mb-0.5">Industry</p>
-              <p class="font-body text-xs text-white/70">{project.industry}</p>
-            </div>
+            <a 
+              href="#" 
+              class="flex items-center gap-1 text-white/50 hover:text-primary transition-colors font-label text-[10px] uppercase tracking-wider"
+            >
+              View
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+              </svg>
+            </a>
           </div>
-
-          <!-- CTA -->
-          <a 
-            href="#" 
-            class="inline-flex items-center gap-2 mt-2 text-white/40 hover:text-primary transition-colors duration-300 font-label text-[10px] uppercase tracking-[0.2em] group/link"
-          >
-            Explore case
-            <svg class="w-3 h-3 transition-transform duration-300 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
-            </svg>
-          </a>
         </div>
       </article>
     {/each}
   </div>
 
-  <!-- Mobile Bottom Hint -->
-  <div class="flex flex-col items-center justify-center mt-8 mb-4">
-    <div class="flex items-center gap-2 text-white/30">
-      <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
-      </svg>
-      <span class="font-label text-[10px] uppercase tracking-[0.2em]">Scroll to explore</span>
-    </div>
+  <!-- Progress Dots -->
+  <div class="flex items-center justify-center gap-2 mt-6 px-5">
+    {#each projects as _, i}
+      <button
+        class="progress-dot {i === currentMobileIndex ? 'active' : ''}"
+        on:click={() => goToSlide(i)}
+        aria-label="Go to project {i + 1}"
+      ></button>
+    {/each}
   </div>
 
-  <!-- Mobile Bottom Spacer -->
-  <div class="h-16"></div>
+  <!-- Navigation Arrows (for tap navigation) -->
+  <div class="flex items-center justify-between px-5 mt-6">
+    <button
+      class="nav-arrow {currentMobileIndex === 0 ? 'disabled' : ''}"
+      on:click={() => goToSlide(currentMobileIndex - 1)}
+      disabled={currentMobileIndex === 0}
+      aria-label="Previous project"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    
+    <span class="font-label text-[10px] uppercase tracking-[0.2em] text-white/30">
+      {currentMobileIndex + 1} / {projects.length}
+    </span>
+    
+    <button
+      class="nav-arrow {currentMobileIndex === projects.length - 1 ? 'disabled' : ''}"
+      on:click={() => goToSlide(currentMobileIndex + 1)}
+      disabled={currentMobileIndex === projects.length - 1}
+      aria-label="Next project"
+    >
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    </button>
+  </div>
 </section>
 
 <style>
@@ -565,9 +632,33 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Mobile Card Styles */
-  .mobile-card {
-    will-change: transform, opacity;
+  /* Mobile Gallery Styles */
+  .mobile-gallery {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    cursor: grab;
+    padding: 0 20px;
+    gap: 16px;
+  }
+
+  .mobile-gallery::-webkit-scrollbar {
+    display: none;
+  }
+
+  .mobile-gallery:active {
+    cursor: grabbing;
+  }
+
+  .mobile-slide {
+    flex: 0 0 85%;
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
   }
 
   .line-clamp-3 {
@@ -577,36 +668,87 @@
     overflow: hidden;
   }
 
-  /* Hide scrollbar for mobile cards */
-  #works-mobile::-webkit-scrollbar {
-    display: none;
-  }
-
   /* Progress Dots */
   .progress-dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    cursor: pointer;
     transition: all 0.3s ease;
+    padding: 0;
   }
 
   .progress-dot.active {
     width: 24px;
-    border-radius: 3px;
+    border-radius: 4px;
     background-color: #4d7cff;
   }
 
-  @keyframes bounce {
+  /* Navigation Arrows */
+  .nav-arrow {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: transparent;
+    color: rgba(255, 255, 255, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+
+  .nav-arrow:hover:not(.disabled) {
+    border-color: #4d7cff;
+    color: #4d7cff;
+    background: rgba(77, 124, 255, 0.1);
+  }
+
+  .nav-arrow.disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+  }
+
+  /* Swipe Animation */
+  @keyframes swipe-hint {
     0%, 100% {
-      transform: translateY(0);
+      transform: translateX(0);
     }
     50% {
-      transform: translateY(-4px);
+      transform: translateX(-4px);
     }
   }
 
-  .animate-bounce {
-    animation: bounce 1.5s ease-in-out infinite;
+  @keyframes swipe-hint-reverse {
+    0%, 100% {
+      transform: translateX(0);
+    }
+    50% {
+      transform: translateX(4px);
+    }
+  }
+
+  .animate-swipe-hint {
+    animation: swipe-hint 1.5s ease-in-out infinite;
+  }
+
+  .animate-swipe-hint-reverse {
+    animation: swipe-hint-reverse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  .animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
 </style>
