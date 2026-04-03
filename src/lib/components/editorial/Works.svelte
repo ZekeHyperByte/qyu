@@ -393,10 +393,26 @@
 <!-- Mobile Version - Card Stack -->
 <section id="works-mobile" bind:this={mobileSectionEl} class="relative w-full block md:hidden bg-[#0c0c0b] py-16 px-4">
   
-  <!-- Mobile Header -->
-  <div class="mb-12">
-    <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/35 mb-1">Selected Works</p>
-    <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/20">Vol. 01 — 2023–2025</p>
+  <!-- Mobile Header with Progress -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-4">
+      <div>
+        <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/35 mb-1">Selected Works</p>
+        <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/20">Vol. 01 — 2023–2025</p>
+      </div>
+      <!-- Project Counter -->
+      <div class="text-right">
+        <span class="font-headline text-xl font-bold text-white">{projects.length}</span>
+        <span class="font-label text-[10px] text-white/30 uppercase tracking-wider ml-1">Projects</span>
+      </div>
+    </div>
+    
+    <!-- Progress Dots -->
+    <div class="flex items-center gap-2">
+      {#each projects as _, i}
+        <div class="progress-dot" class:active={i === 0}></div>
+      {/each}
+    </div>
   </div>
 
   <!-- Mobile Cards -->
@@ -471,6 +487,16 @@
         </div>
       </article>
     {/each}
+  </div>
+
+  <!-- Mobile Bottom Hint -->
+  <div class="flex flex-col items-center justify-center mt-8 mb-4">
+    <div class="flex items-center gap-2 text-white/30">
+      <svg class="w-4 h-4 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/>
+      </svg>
+      <span class="font-label text-[10px] uppercase tracking-[0.2em]">Scroll to explore</span>
+    </div>
   </div>
 
   <!-- Mobile Bottom Spacer -->
@@ -554,5 +580,33 @@
   /* Hide scrollbar for mobile cards */
   #works-mobile::-webkit-scrollbar {
     display: none;
+  }
+
+  /* Progress Dots */
+  .progress-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .progress-dot.active {
+    width: 24px;
+    border-radius: 3px;
+    background-color: #4d7cff;
+  }
+
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-4px);
+    }
+  }
+
+  .animate-bounce {
+    animation: bounce 1.5s ease-in-out infinite;
   }
 </style>
