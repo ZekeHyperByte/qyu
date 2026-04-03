@@ -41,6 +41,9 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
+    // Check if mobile for animation optimizations
+    const isMobile = window.innerWidth < 768;
+
     ctx = gsap.context(() => {
       // Split headline only
       headlineSplit = new SplitType('.about-headline', { types: 'lines, words' });
@@ -60,22 +63,22 @@
         }
       });
 
-      // Pure mask reveal for the headline
+      // Pure mask reveal for the headline - simplified on mobile
       tl.from(headlineSplit.words, {
         yPercent: 140,
-        rotate: 4,
+        rotate: isMobile ? 0 : 4, // Remove rotation on mobile for performance
         transformOrigin: "0% 100%",
-        duration: 1.5,
-        stagger: 0.12,
+        duration: isMobile ? 1.2 : 1.5,
+        stagger: isMobile ? 0.08 : 0.12, // Faster stagger on mobile
         ease: 'expo.out',
       })
       // CTA button
       .from('.about-cta', {
         y: 30,
         opacity: 0,
-        duration: 1.2,
+        duration: isMobile ? 1.0 : 1.2,
         ease: 'power3.out',
-      }, "-=0.8");
+      }, isMobile ? "-=0.6" : "-=0.8");
 
       // Scramble animation on the subheadline, triggered at the same time as the headline
       const subheadlineEl = sectionRef.querySelector('.subheadline') as HTMLElement;
@@ -92,9 +95,12 @@
         });
         
         scrambleTl.to({}, {
-          duration: 1.8,
+          duration: isMobile ? 1.4 : 1.8, // Faster on mobile
           ease: 'none',
           onUpdate: function() {
+            // Skip frames on mobile for better performance
+            if (isMobile && this.progress() % 0.1 > 0.05) return;
+            
             const progress = this.progress();
             const chars = originalText.split('');
             const isReversing = progress < lastProgress;
@@ -130,7 +136,7 @@
   });
 </script>
 
-<section id="about" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center items-center py-32 lg:py-48 px-8 lg:px-10 bg-[#0c0c0b]">
+<section id="about" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center items-center py-20 md:py-32 lg:py-48 px-6 md:px-8 lg:px-10 bg-[#0c0c0b]">
   <div class="max-w-[1440px] mx-auto text-center">
 
     <h2 class="about-headline">
@@ -161,12 +167,15 @@
 
   .about-headline {
     font-family: var(--font-headline);
-    font-size: clamp(3rem, 10vw, 9rem);
+    font-size: clamp(2.25rem, 8vw, 9rem);
     font-weight: 800;
-    line-height: 0.9;
-    letter-spacing: -0.04em;
+    line-height: 0.95;
+    letter-spacing: -0.03em;
     color: #e8e8e4;
-    margin-bottom: 48px;
+    margin-bottom: clamp(24px, 5vw, 48px);
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+    hyphens: auto;
   }
 
   :global(.gradient-text) {
@@ -180,21 +189,29 @@
 
   .subheadline {
     font-family: var(--font-body);
-    font-size: clamp(0.9rem, 1.4vw, 1.2rem);
+    font-size: clamp(0.75rem, 3vw, 1.2rem);
     font-weight: 300;
     color: rgba(232, 232, 228, 0.45);
     letter-spacing: 0.02em;
-    line-height: 1.6;
-    white-space: nowrap;
+    line-height: 1.5;
+    max-width: 100%;
+  }
+
+  @media (max-width: 767px) {
+    .subheadline {
+      white-space: nowrap;
+      font-size: clamp(0.65rem, 3.2vw, 0.9rem);
+    }
   }
 
   .about-cta {
     display: inline-flex;
     align-items: center;
     gap: 4px;
-    margin-top: 56px;
+    margin-top: clamp(32px, 8vw, 56px);
+    padding: 8px 0;
     font-family: var(--font-label);
-    font-size: 0.7rem;
+    font-size: clamp(0.65rem, 2vw, 0.7rem);
     font-weight: 400;
     letter-spacing: 0.2em;
     text-transform: uppercase;
@@ -202,6 +219,7 @@
     text-decoration: none;
     position: relative;
     cursor: pointer;
+    min-height: 44px;
   }
 
   .about-cta span:first-child {
