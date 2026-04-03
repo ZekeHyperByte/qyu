@@ -41,12 +41,9 @@
 
     gsap.registerPlugin(ScrollTrigger);
 
-    // Check if mobile for animation optimizations
-    const isMobile = window.innerWidth < 768;
-
     ctx = gsap.context(() => {
       // Split headline only
-      headlineSplit = new SplitType('.about-headline', { types: 'lines, words' });
+      headlineSplit = new SplitType('.about-headline', { types: 'lines,words' });
 
       // Dynamically apply gradient safely to the last word ("SURFACE.") so it moves flawlessly with GSAP properties
       if (headlineSplit.words && headlineSplit.words.length > 0) {
@@ -63,22 +60,22 @@
         }
       });
 
-      // Pure mask reveal for the headline - simplified on mobile
+      // Pure mask reveal for the headline
       tl.from(headlineSplit.words, {
         yPercent: 140,
-        rotate: isMobile ? 0 : 4, // Remove rotation on mobile for performance
+        rotate: 4,
         transformOrigin: "0% 100%",
-        duration: isMobile ? 1.2 : 1.5,
-        stagger: isMobile ? 0.08 : 0.12, // Faster stagger on mobile
+        duration: 1.5,
+        stagger: 0.12,
         ease: 'expo.out',
       })
       // CTA button
       .from('.about-cta', {
         y: 30,
         opacity: 0,
-        duration: isMobile ? 1.0 : 1.2,
+        duration: 1.2,
         ease: 'power3.out',
-      }, isMobile ? "-=0.6" : "-=0.8");
+      }, "-=0.8");
 
       // Scramble animation on the subheadline, triggered at the same time as the headline
       const subheadlineEl = sectionRef.querySelector('.subheadline') as HTMLElement;
@@ -95,12 +92,9 @@
         });
         
         scrambleTl.to({}, {
-          duration: isMobile ? 1.4 : 1.8, // Faster on mobile
+          duration: 1.8,
           ease: 'none',
           onUpdate: function() {
-            // Skip frames on mobile for better performance
-            if (isMobile && this.progress() % 0.1 > 0.05) return;
-            
             const progress = this.progress();
             const chars = originalText.split('');
             const isReversing = progress < lastProgress;
