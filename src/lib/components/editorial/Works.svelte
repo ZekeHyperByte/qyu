@@ -85,9 +85,6 @@
   // Mobile gallery refs
   let mobileGalleryEl: HTMLElement;
   let currentMobileIndex = 0;
-  let isDragging = false;
-  let startX = 0;
-  let scrollLeft = 0;
 
   let entryST: any = null;
   let mainST: any = null;
@@ -152,45 +149,11 @@
     if (ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill());
   }
 
-  // Mobile gallery functions
-  function goToSlide(index: number) {
-    if (!mobileGalleryEl) return;
-    currentMobileIndex = Math.max(0, Math.min(index, N - 1));
-    const slideWidth = mobileGalleryEl.offsetWidth;
-    mobileGalleryEl.scrollTo({
-      left: currentMobileIndex * slideWidth,
-      behavior: 'smooth'
-    });
-  }
-
-  function handleTouchStart(e: TouchEvent | MouseEvent) {
-    isDragging = true;
-    startX = 'touches' in e ? e.touches[0].pageX : e.pageX;
-    scrollLeft = mobileGalleryEl?.scrollLeft || 0;
-  }
-
-  function handleTouchMove(e: TouchEvent | MouseEvent) {
-    if (!isDragging || !mobileGalleryEl) return;
-    e.preventDefault();
-    const x = 'touches' in e ? e.touches[0].pageX : e.pageX;
-    const walk = (startX - x) * 1.5;
-    mobileGalleryEl.scrollLeft = scrollLeft + walk;
-  }
-
-  function handleTouchEnd() {
-    if (!mobileGalleryEl) return;
-    isDragging = false;
-    
-    // Snap to nearest slide
-    const slideWidth = mobileGalleryEl.offsetWidth;
-    const newIndex = Math.round(mobileGalleryEl.scrollLeft / slideWidth);
-    goToSlide(newIndex);
-  }
-
   function updateCurrentIndex() {
     if (!mobileGalleryEl) return;
-    const slideWidth = mobileGalleryEl.offsetWidth;
-    currentMobileIndex = Math.round(mobileGalleryEl.scrollLeft / slideWidth);
+    const slideWidth = mobileGalleryEl.offsetWidth * 0.85; // 85% width slides
+    const scrollPosition = mobileGalleryEl.scrollLeft;
+    currentMobileIndex = Math.round(scrollPosition / slideWidth);
   }
 
   function setupScrollTriggers() {
@@ -421,16 +384,16 @@
 </section>
 
 <!-- Mobile Version - Horizontal Swipe Gallery -->
-<section id="works-mobile" class="relative w-full block md:hidden bg-[#0c0c0b] py-12">
+<section id="works-mobile" class="relative w-full block md:hidden bg-[#0c0c0b] py-8">
   
-  <!-- Mobile Header -->
-  <div class="px-5 mb-6">
+  <!-- Mobile Header with Counter -->
+  <div class="px-5 mb-4">
     <div class="flex items-center justify-between">
       <div>
         <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/35 mb-1">Selected Works</p>
         <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/20">Vol. 01 — 2023–2025</p>
       </div>
-      <!-- Project Counter -->
+      <!-- Project Counter (Top Right Only) -->
       <div class="flex items-baseline gap-1">
         <span class="font-headline text-2xl font-bold text-white">{currentMobileIndex + 1}</span>
         <span class="font-label text-sm text-white/30">/</span>
@@ -440,7 +403,7 @@
   </div>
 
   <!-- Swipe Instruction -->
-  <div class="px-5 mb-4 flex items-center gap-2 text-white/40">
+  <div class="px-5 mb-3 flex items-center gap-2 text-white/40">
     <svg class="w-4 h-4 animate-swipe-hint" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round" d="M7 16l-4-4m0 0l4-4m-4 4h18"/>
     </svg>
@@ -450,17 +413,10 @@
     </svg>
   </div>
 
-  <!-- Horizontal Gallery -->
+  <!-- Horizontal Gallery with Native Scroll -->
   <div 
     bind:this={mobileGalleryEl}
     class="mobile-gallery"
-    on:touchstart={handleTouchStart}
-    on:touchmove={handleTouchMove}
-    on:touchend={handleTouchEnd}
-    on:mousedown={handleTouchStart}
-    on:mousemove={handleTouchMove}
-    on:mouseup={handleTouchEnd}
-    on:mouseleave={handleTouchEnd}
   >
     {#each projects as project, i}
       <article class="mobile-slide">
@@ -529,45 +485,8 @@
     {/each}
   </div>
 
-  <!-- Progress Dots -->
-  <div class="flex items-center justify-center gap-2 mt-6 px-5">
-    {#each projects as _, i}
-      <button
-        class="progress-dot {i === currentMobileIndex ? 'active' : ''}"
-        on:click={() => goToSlide(i)}
-        aria-label="Go to project {i + 1}"
-      ></button>
-    {/each}
-  </div>
-
-  <!-- Navigation Arrows (for tap navigation) -->
-  <div class="flex items-center justify-between px-5 mt-6">
-    <button
-      class="nav-arrow {currentMobileIndex === 0 ? 'disabled' : ''}"
-      on:click={() => goToSlide(currentMobileIndex - 1)}
-      disabled={currentMobileIndex === 0}
-      aria-label="Previous project"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/>
-      </svg>
-    </button>
-    
-    <span class="font-label text-[10px] uppercase tracking-[0.2em] text-white/30">
-      {currentMobileIndex + 1} / {projects.length}
-    </span>
-    
-    <button
-      class="nav-arrow {currentMobileIndex === projects.length - 1 ? 'disabled' : ''}"
-      on:click={() => goToSlide(currentMobileIndex + 1)}
-      disabled={currentMobileIndex === projects.length - 1}
-      aria-label="Next project"
-    >
-      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-      </svg>
-    </button>
-  </div>
+  <!-- Extra padding to allow page scrolling past the gallery -->
+  <div class="h-8"></div>
 </section>
 
 <style>
@@ -632,7 +551,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Mobile Gallery Styles */
+  /* Mobile Gallery Styles - Native Scroll with Smart Touch Handling */
   .mobile-gallery {
     display: flex;
     overflow-x: auto;
@@ -642,17 +561,15 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    cursor: grab;
-    padding: 0 20px;
+    touch-action: pan-y; /* Allow vertical scrolling, handle horizontal in JS */
+    padding: 10px 20px 20px;
     gap: 16px;
+    /* Enable horizontal scrolling while allowing page scroll */
+    overscroll-behavior-x: contain;
   }
 
   .mobile-gallery::-webkit-scrollbar {
     display: none;
-  }
-
-  .mobile-gallery:active {
-    cursor: grabbing;
   }
 
   .mobile-slide {
@@ -666,50 +583,6 @@
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
-  }
-
-  /* Progress Dots */
-  .progress-dot {
-    width: 8px;
-    height: 8px;
-    border-radius: 50%;
-    background-color: rgba(255, 255, 255, 0.2);
-    border: none;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    padding: 0;
-  }
-
-  .progress-dot.active {
-    width: 24px;
-    border-radius: 4px;
-    background-color: #4d7cff;
-  }
-
-  /* Navigation Arrows */
-  .nav-arrow {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: transparent;
-    color: rgba(255, 255, 255, 0.7);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-
-  .nav-arrow:hover:not(.disabled) {
-    border-color: #4d7cff;
-    color: #4d7cff;
-    background: rgba(77, 124, 255, 0.1);
-  }
-
-  .nav-arrow.disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
   }
 
   /* Swipe Animation */
