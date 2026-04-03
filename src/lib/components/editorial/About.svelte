@@ -10,29 +10,6 @@
 
   const scrambleChars = '!@#$%^&*()_+-=[]{}|;:,.<>?/~`0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz';
 
-  function scrambleSentence(sentenceEl: HTMLElement, duration: number, tl: any) {
-    const original = sentenceEl.textContent || '';
-    const chars = original.split('');
-
-    tl.to({}, {
-      duration,
-      delay: 0,
-      onUpdate: () => {
-        const progress = tl.progress();
-        const resolvedCount = Math.ceil(progress * chars.length);
-
-        sentenceEl.textContent = chars.map((char, i) => {
-          if (char === ' ') return ' ';
-          if (i < resolvedCount) return original[i];
-          return scrambleChars[Math.floor(Math.random() * scrambleChars.length)];
-        }).join('');
-      },
-      onComplete: () => {
-        sentenceEl.textContent = original;
-      }
-    });
-  }
-
   onMount(async () => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const isMobile = window.innerWidth < 768;
@@ -57,7 +34,7 @@
         scrollTrigger: {
           trigger: sectionRef,
           start: 'top 60%',
-          toggleActions: 'play none none reverse'
+          toggleActions: prefersReducedMotion ? 'none none none none' : 'play none none reverse'
         }
       });
 
@@ -65,9 +42,9 @@
         yPercent: 140,
         rotate: 4,
         transformOrigin: "0% 100%",
-        duration: prefersReducedMotion ? 0 : 1.5,
-        stagger: prefersReducedMotion ? 0 : 0.12,
-        ease: prefersReducedMotion ? 'none' : 'expo.out',
+        duration: 1.5,
+        stagger: 0.12,
+        ease: 'expo.out',
       });
 
       const subheadlineEl = sectionRef.querySelector('.subheadline') as HTMLElement;
@@ -116,7 +93,7 @@
             lastProgress = 1;
           },
           onReverseComplete: () => {
-            subheadlineEl.textContent = '';
+            subheadlineEl.textContent = originalText;
             lastProgress = 0;
           }
         });
@@ -135,7 +112,7 @@
 </script>
 
 <section id="about" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center items-center py-20 md:py-32 lg:py-48 px-6 md:px-8 lg:px-10 bg-[#0c0c0b]">
-  <div class="max-w-[1440px] mx-auto text-center">
+  <div class="w-full max-w-[1440px] mx-auto text-center px-0 sm:px-4">
 
     <h2 class="about-headline">
       ENGINEERING BEYOND THE SURFACE.
@@ -184,14 +161,19 @@
     color: rgba(232, 232, 228, 0.45);
     letter-spacing: 0.02em;
     line-height: 1.5;
-    max-width: 100%;
+    max-width: 60ch;
+    margin-left: auto;
+    margin-right: auto;
+    overflow: visible;
   }
 
   @media (max-width: 767px) {
     .subheadline {
       white-space: normal;
       font-size: clamp(0.65rem, 3.2vw, 0.9rem);
-      padding: 0 0.5rem;
+      letter-spacing: 0;
+      padding: 0 1rem;
+      max-width: 100%;
     }
   }
 
