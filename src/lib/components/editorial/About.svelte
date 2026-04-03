@@ -34,7 +34,7 @@
         scrollTrigger: {
           trigger: sectionRef,
           start: 'top 60%',
-          toggleActions: prefersReducedMotion ? 'none none none none' : 'play none none reverse'
+          toggleActions: prefersReducedMotion ? 'none none none none' : 'play none play reverse'
         }
       });
 
@@ -56,7 +56,7 @@
           scrollTrigger: {
             trigger: sectionRef,
             start: 'top 60%',
-            toggleActions: 'play none none reverse'
+            toggleActions: 'play none play reverse'
           }
         });
 
