@@ -117,7 +117,7 @@
   });
 </script>
 
-<section id="about" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center items-center py-20 md:py-32 lg:py-48 px-6 md:px-8 lg:px-10 bg-[#0c0c0b]">
+<section id="about" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center items-center py-16 md:py-24 lg:py-32 px-6 md:px-8 lg:px-10 bg-[#0c0c0b]">
   <div class="w-full max-w-[1440px] mx-auto text-center px-0 sm:px-4">
 
     <h2 class="about-headline">

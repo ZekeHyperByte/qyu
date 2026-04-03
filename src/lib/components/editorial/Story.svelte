@@ -62,7 +62,7 @@
   });
 </script>
 
-<section id="story" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center py-32 lg:py-48 px-8 lg:px-10 xl:px-20 bg-[#0c0c0b]">
+<section id="story" bind:this={sectionRef} class="min-h-screen flex flex-col justify-center py-16 md:py-24 lg:py-32 px-8 lg:px-10 xl:px-20 bg-[#0c0c0b]">
   <div class="max-w-[1440px] mx-auto w-full">
     <p class="story-text max-w-[90vw] sm:max-w-[70vw] md:max-w-[50vw]">
       {#each words as word, i}

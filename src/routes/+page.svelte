@@ -6,7 +6,7 @@
   import Footer from '$lib/components/editorial/Footer.svelte';
 </script>
 
-<div class="bg-surface text-on-surface w-full" style="overflow-x: clip;"><Hero />
+<div class="bg-surface text-on-surface w-full" style="overflow-x: clip; overflow-y: clip;"><Hero />
   <Story />
   <Works />
   <About />
