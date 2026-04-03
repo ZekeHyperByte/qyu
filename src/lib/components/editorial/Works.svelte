@@ -85,12 +85,7 @@
   // Mobile gallery refs
   let mobileGalleryEl: HTMLElement;
   let currentMobileIndex = 0;
-  
-  // Touch handling for smart swipe detection
-  let touchStartX = 0;
-  let touchStartY = 0;
-  let touchStartTime = 0;
-  let isHorizontalSwipe = false;
+  let intersectionObserver: IntersectionObserver | null = null;
 
   let entryST: any = null;
   let mainST: any = null;
@@ -155,69 +150,30 @@
     if (ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill());
   }
 
-  function updateCurrentIndex() {
-    if (!mobileGalleryEl) return;
-    const slideWidth = mobileGalleryEl.offsetWidth * 0.85; // 85% width slides
-    const scrollPosition = mobileGalleryEl.scrollLeft;
-    currentMobileIndex = Math.round(scrollPosition / slideWidth);
-  }
+  function setupIntersectionObserver() {
+    if (!mobileGalleryEl || intersectionObserver) return;
+    
+    const slides = mobileGalleryEl.querySelectorAll('.mobile-slide');
+    if (slides.length === 0) return;
 
-  // Smart touch handlers with directional detection
-  function onTouchStart(e: TouchEvent) {
-    touchStartX = e.touches[0].clientX;
-    touchStartY = e.touches[0].clientY;
-    touchStartTime = Date.now();
-    isHorizontalSwipe = false;
-  }
+    intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const index = Array.from(slides).indexOf(entry.target as HTMLElement);
+            if (index !== -1) {
+              currentMobileIndex = index;
+            }
+          }
+        });
+      },
+      {
+        root: mobileGalleryEl,
+        threshold: 0.6, // Trigger when 60% of slide is visible
+      }
+    );
 
-  function onTouchMove(e: TouchEvent) {
-    if (!mobileGalleryEl) return;
-    
-    const touchX = e.touches[0].clientX;
-    const touchY = e.touches[0].clientY;
-    const deltaX = touchStartX - touchX;
-    const deltaY = touchStartY - touchY;
-    
-    // Determine swipe direction
-    const absX = Math.abs(deltaX);
-    const absY = Math.abs(deltaY);
-    
-    // If clearly horizontal (more horizontal than vertical, and > 30px)
-    if (absX > absY && absX > 30) {
-      isHorizontalSwipe = true;
-      // Prevent default to handle horizontal scroll manually
-      e.preventDefault();
-      
-      // Apply the scroll
-      const slideWidth = mobileGalleryEl.offsetWidth * 0.85;
-      mobileGalleryEl.scrollLeft += deltaX * 0.3; // Smooth drag feel
-      touchStartX = touchX;
-    }
-    // Otherwise let browser handle it (vertical scroll)
-  }
-
-  function onTouchEnd(e: TouchEvent) {
-    if (!mobileGalleryEl || !isHorizontalSwipe) return;
-    
-    const touchEndTime = Date.now();
-    const timeDiff = touchEndTime - touchStartTime;
-    
-    // Snap to nearest slide
-    const slideWidth = mobileGalleryEl.offsetWidth * 0.85;
-    const currentScroll = mobileGalleryEl.scrollLeft;
-    const targetIndex = Math.round(currentScroll / slideWidth);
-    const targetScroll = targetIndex * slideWidth;
-    
-    // Smooth snap animation
-    mobileGalleryEl.scrollTo({
-      left: targetScroll,
-      behavior: 'smooth'
-    });
-    
-    // Update counter after animation
-    setTimeout(() => {
-      currentMobileIndex = targetIndex;
-    }, 150);
+    slides.forEach((slide) => intersectionObserver?.observe(slide));
   }
 
   function setupScrollTriggers() {
@@ -308,14 +264,9 @@
     
     setupScrollTriggers();
 
-    // Add scroll listener for mobile gallery
+    // Setup intersection observer for mobile gallery counter
     if (mobileGalleryEl) {
-      mobileGalleryEl.addEventListener('scroll', updateCurrentIndex, { passive: true });
-      
-      // Add smart touch handlers for swipe detection
-      mobileGalleryEl.addEventListener('touchstart', onTouchStart, { passive: true });
-      mobileGalleryEl.addEventListener('touchmove', onTouchMove, { passive: false });
-      mobileGalleryEl.addEventListener('touchend', onTouchEnd, { passive: true });
+      setupIntersectionObserver();
     }
 
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -336,11 +287,9 @@
 
     return () => {
       window.removeEventListener('resize', onResize);
-      if (mobileGalleryEl) {
-        mobileGalleryEl.removeEventListener('scroll', updateCurrentIndex);
-        mobileGalleryEl.removeEventListener('touchstart', onTouchStart);
-        mobileGalleryEl.removeEventListener('touchmove', onTouchMove);
-        mobileGalleryEl.removeEventListener('touchend', onTouchEnd);
+      if (intersectionObserver) {
+        intersectionObserver.disconnect();
+        intersectionObserver = null;
       }
       cleanup();
     };
@@ -623,7 +572,7 @@
     to   { opacity: 1; transform: translateY(0); }
   }
 
-  /* Mobile Gallery Styles - Native Scroll with Smart Touch Handling */
+  /* Mobile Gallery Styles - Native Scroll-Snap for Smooth Performance */
   .mobile-gallery {
     display: flex;
     overflow-x: auto;
@@ -633,11 +582,15 @@
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
     -ms-overflow-style: none;
-    touch-action: auto; /* Let JS handle direction detection */
+    /* Let browser handle touch - pan-x allows horizontal swipe, vertical passes through */
+    touch-action: pan-x pan-y pinch-zoom;
     padding: 10px 20px 20px;
     gap: 16px;
     /* Enable horizontal scrolling while allowing page scroll */
     overscroll-behavior-x: contain;
+    /* Performance optimizations */
+    contain: layout style paint;
+    will-change: scroll-position;
   }
 
   .mobile-gallery::-webkit-scrollbar {
@@ -648,6 +601,11 @@
     flex: 0 0 85%;
     scroll-snap-align: center;
     scroll-snap-stop: always;
+    /* Performance: only render when near viewport */
+    content-visibility: auto;
+    contain-intrinsic-size: auto 300px;
+    /* Visual feedback during scroll */
+    transition: transform 0.3s ease-out, opacity 0.3s ease-out;
   }
 
   .line-clamp-3 {
@@ -682,6 +640,11 @@
 
   .animate-swipe-hint-reverse {
     animation: swipe-hint-reverse 1.5s ease-in-out infinite;
+  }
+
+  /* Active slide visual feedback */
+  .mobile-gallery:active .mobile-slide:not(:active) {
+    opacity: 0.7;
   }
 
   @keyframes pulse {
