@@ -67,6 +67,7 @@
   let activeIndex = 0;
   let isMobile = false;
 
+  // Desktop refs
   let sectionEl: HTMLElement;
   let panelEl: HTMLElement;
   let leftPanelEl: HTMLElement;
@@ -81,10 +82,14 @@
   let imgEls: HTMLElement[] = [];
   let progressFillEl: HTMLElement;
 
+  // Mobile refs
+  let mobileSectionEl: HTMLElement;
+  let mobileCardEls: HTMLElement[] = [];
+
   let entryST: any = null;
   let mainST: any = null;
   let ScrollTrigger: any = null;
-  let capturedVH = 0; // Viewport height captured at setup time — prevents pin spacer resize on auto-refresh
+  let capturedVH = 0;
 
   function checkMobile() {
     isMobile = window.innerWidth < 768;
@@ -148,57 +153,34 @@
     cleanup();
     gsap.registerPlugin(ScrollTrigger);
 
-    // Lock the viewport height used for pin duration calculations.
-    // This prevents the pin spacer from resizing on auto-refresh
-    // (e.g. when toggling fullscreen), which would shift all content
-    // below the Works section and cause a jarring scroll jump.
     capturedVH = window.innerHeight;
 
     const itemHeight = getItemHeight();
 
     if (isMobile) {
-      gsap.set(panelEl, { autoAlpha: 1, y: 0 });
-      gsap.set(leftPanelEl, { y: 0, autoAlpha: 1 });
-      gsap.set(rightPanelEl, { y: 0, autoAlpha: 1 });
-      gsap.set(imgContainerEl, { y: 0, autoAlpha: 1 });
-      gsap.set(headerEl, { y: 0, autoAlpha: 1 });
-      gsap.set(bottomHintEl, { y: 0, autoAlpha: 1 });
-      metaEls.forEach((el, i) => el && gsap.set(el, { autoAlpha: i === 0 ? 1 : 0, y: i === 0 ? 0 : 12 }));
-
-      mainST = ScrollTrigger.create({
-        trigger: sectionEl,
-        start: 'top top',
-        end: () => `+=${(N - 1) * capturedVH}`,
-        pin: panelEl,
-        pinSpacing: true,
-        anticipatePin: 1,
-        onEnterBack(self) {
-          const fractionalIndex = self.progress * (N - 1);
-          activeIndex = Math.round(fractionalIndex);
-
-        imgEls.forEach((el, i) => el && gsap.set(el, { autoAlpha: i === activeIndex ? 1 : 0, scale: 1 }));
-        metaEls.forEach((el, i) => el && gsap.set(el, { autoAlpha: i === activeIndex ? 1 : 0, y: i === activeIndex ? 0 : 12 }));
-          if (progressFillEl) gsap.set(progressFillEl, { scaleY: self.progress });
-
-          listItemsEl.forEach((el, i) => {
-            if (!el) return;
-            const dist = Math.abs(i - fractionalIndex);
-            const alpha = Math.max(0.05, 1 - dist * 0.8);
-            const colorVal = Math.max(0.2, 1 - dist * 0.8);
-            gsap.set(el, { autoAlpha: alpha, color: `rgba(255,255,255,${colorVal})` });
-          });
-
-          if (listContainerEl) gsap.set(listContainerEl, { y: -Math.round(fractionalIndex) * itemHeight });
-          if (yearBadgeEl) gsap.set(yearBadgeEl, { autoAlpha: 1, y: 0 });
-        },
-        onUpdate(self) {
-          const fractionalIndex = self.progress * (N - 1);
-
-          if (progressFillEl) gsap.set(progressFillEl, { scaleY: self.progress });
-
-          if (listContainerEl) gsap.set(listContainerEl, { y: -Math.round(fractionalIndex) * itemHeight });
-          updateListVisuals(fractionalIndex);
-        },
+      // Mobile: Card scroll animation
+      mobileCardEls.forEach((card, i) => {
+        if (!card) return;
+        
+        gsap.fromTo(card, 
+          { 
+            opacity: 0, 
+            y: 60,
+            scale: 0.95
+          },
+          {
+            opacity: 1,
+            y: 0,
+            scale: 1,
+            duration: 0.8,
+            ease: 'power3.out',
+            scrollTrigger: {
+              trigger: card,
+              start: 'top 85%',
+              toggleActions: 'play none none reverse'
+            }
+          }
+        );
       });
       return;
     }
@@ -214,8 +196,6 @@
         const p = self.progress;
         const eased = gsap.parseEase('power2.out')(p);
 
-        // Avoid animating the pinned panelEl itself to prevent layout shift glitches
-        // Combine the 80px offset into the children (80 + 60 = 140)
         gsap.set(leftPanelEl, { y: (1 - eased) * 140 });
         gsap.set(rightPanelEl, { y: (1 - eased) * 140 });
         gsap.set(imgContainerEl, { y: (1 - eased) * 30 });
@@ -272,7 +252,11 @@
     ScrollTrigger = ST;
 
     checkMobile();
-    setInitialState();
+    
+    if (!isMobile) {
+      setInitialState();
+    }
+    
     setupScrollTriggers();
 
     let resizeTimer: ReturnType<typeof setTimeout>;
@@ -282,7 +266,9 @@
         const wasMobile = isMobile;
         checkMobile();
         if (wasMobile !== isMobile) {
-          setInitialState();
+          if (!isMobile) {
+            setInitialState();
+          }
           setupScrollTriggers();
         }
       }, 300);
@@ -298,7 +284,8 @@
   onDestroy(cleanup);
 </script>
 
-<section id="works" bind:this={sectionEl} class="relative w-full">
+<!-- Desktop Version -->
+<section id="works" bind:this={sectionEl} class="relative w-full hidden md:block">
 
   <div
     bind:this={panelEl}
@@ -403,6 +390,93 @@
   </div>
 </section>
 
+<!-- Mobile Version - Card Stack -->
+<section id="works-mobile" bind:this={mobileSectionEl} class="relative w-full block md:hidden bg-[#0c0c0b] py-16 px-4">
+  
+  <!-- Mobile Header -->
+  <div class="mb-12">
+    <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/35 mb-1">Selected Works</p>
+    <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/20">Vol. 01 — 2023–2025</p>
+  </div>
+
+  <!-- Mobile Cards -->
+  <div class="flex flex-col gap-8">
+    {#each projects as project, i}
+      <article 
+        bind:this={mobileCardEls[i]}
+        class="mobile-card group"
+      >
+        <!-- Image Container -->
+        <div class="relative w-full aspect-[4/3] rounded-lg overflow-hidden bg-[#1a1a18] mb-5">
+          <img
+            src={project.imgUrl}
+            alt={project.title}
+            class="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
+            loading={i < 2 ? 'eager' : 'lazy'}
+          />
+          <!-- Year Badge -->
+          <div class="absolute top-3 left-3 px-2 py-1 bg-black/60 backdrop-blur-sm rounded">
+            <span class="font-label text-[9px] text-white/70 tracking-wider">{project.year}</span>
+          </div>
+        </div>
+
+        <!-- Content -->
+        <div class="space-y-4">
+          <!-- Title & Category -->
+          <div>
+            <h3 class="font-headline text-2xl font-bold text-white mb-1 leading-tight">
+              {project.title}
+            </h3>
+            <p class="font-label text-[10px] uppercase tracking-wider text-primary">
+              {project.category}
+            </p>
+          </div>
+
+          <!-- Description -->
+          <p class="font-body text-sm text-white/60 leading-relaxed line-clamp-3">
+            {project.subtitle}
+          </p>
+
+          <!-- Tags -->
+          <div class="flex flex-wrap gap-2">
+            {#each project.tags as tag}
+              <span class="text-white/50 border border-white/10 px-2.5 py-1 text-[10px] font-label tracking-wide rounded">
+                {tag}
+              </span>
+            {/each}
+          </div>
+
+          <!-- Meta Info -->
+          <div class="flex items-center justify-between pt-3 border-t border-white/10">
+            <div>
+              <p class="font-label text-[9px] uppercase tracking-wider text-white/30 mb-0.5">Client</p>
+              <p class="font-body text-xs text-white/70">{project.client}</p>
+            </div>
+            <div class="text-right">
+              <p class="font-label text-[9px] uppercase tracking-wider text-white/30 mb-0.5">Industry</p>
+              <p class="font-body text-xs text-white/70">{project.industry}</p>
+            </div>
+          </div>
+
+          <!-- CTA -->
+          <a 
+            href="#" 
+            class="inline-flex items-center gap-2 mt-2 text-white/40 hover:text-primary transition-colors duration-300 font-label text-[10px] uppercase tracking-[0.2em] group/link"
+          >
+            Explore case
+            <svg class="w-3 h-3 transition-transform duration-300 group-hover/link:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/>
+            </svg>
+          </a>
+        </div>
+      </article>
+    {/each}
+  </div>
+
+  <!-- Mobile Bottom Spacer -->
+  <div class="h-16"></div>
+</section>
+
 <style>
   .list-mask {
     mask-image: linear-gradient(
@@ -463,5 +537,22 @@
   @keyframes metaIn {
     from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* Mobile Card Styles */
+  .mobile-card {
+    will-change: transform, opacity;
+  }
+
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* Hide scrollbar for mobile cards */
+  #works-mobile::-webkit-scrollbar {
+    display: none;
   }
 </style>
