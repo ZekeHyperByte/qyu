@@ -34,7 +34,10 @@
         scrollTrigger: {
           trigger: sectionRef,
           start: 'top 60%',
-          toggleActions: prefersReducedMotion ? 'none none none none' : 'play none play reverse'
+          toggleActions: prefersReducedMotion ? 'none none none none' : 'play none none reverse',
+          onEnterBack: () => {
+            if (!prefersReducedMotion) tl.restart();
+          }
         }
       });
 
@@ -56,7 +59,10 @@
           scrollTrigger: {
             trigger: sectionRef,
             start: 'top 60%',
-            toggleActions: 'play none play reverse'
+            toggleActions: 'play none none reverse',
+            onEnterBack: () => {
+              scrambleTl.restart();
+            }
           }
         });
 
