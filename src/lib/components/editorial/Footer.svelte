@@ -109,10 +109,10 @@
   <div class="relative z-10 flex flex-col justify-between h-full w-full p-6 sm:p-8 lg:p-10">
     
     <!-- Middle Section -->
-    <div class="flex flex-col justify-center items-end w-full flex-1 mt-4 sm:mt-8 mb-4 sm:mb-8">
+    <div class="flex flex-col justify-center items-center w-full flex-1 mt-4 sm:mt-8 mb-4 sm:mb-8">
       
       <!-- Huge text -->
-      <h2 class="footer-headline font-headline leading-[0.85] tracking-tight uppercase font-bold text-right drop-shadow-2xl text-[#f2efe9] mix-blend-plus-lighter w-full">
+      <h2 class="footer-headline font-headline leading-[0.85] tracking-tight uppercase font-bold text-right md:text-center drop-shadow-2xl text-[#f2efe9] mix-blend-plus-lighter w-full">
         Let's<br/>
         Start<br/>
         Talking
