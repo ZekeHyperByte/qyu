@@ -1,6 +1,7 @@
 <script lang="ts">
   import '../app.css';
   import favicon from '$lib/assets/favicon.svg';
+  import LoadingScreen from '$lib/components/LoadingScreen.svelte';
   import { onMount, onDestroy } from 'svelte';
   import { browser } from '$app/environment';
   import { lenisStore } from '$lib/stores/lenis';
@@ -11,12 +12,6 @@
 
   onMount(async () => {
     if (!browser) return;
-
-    // Lock scroll position immediately during load to prevent mobile scroll jump
-    document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.width = '100%';
-    document.body.style.top = '0';
 
     const [{ default: Lenis }, { default: gsap }, { ScrollTrigger }] = await Promise.all([
       import('lenis'),
@@ -42,17 +37,13 @@
     gsap.ticker.add((time) => lenisInstance?.raf(time * 1000));
     gsap.ticker.lagSmoothing(0);
 
-    // Ensure page starts at top after Lenis takes over
-    window.scrollTo(0, 0);
+    // Ensure Lenis starts at top (browser scroll restoration is disabled in app.html)
     lenisInstance.scrollTo(0, { immediate: true });
 
-    // Unlock scroll after Lenis is ready
-    document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.width = '';
-    document.body.style.top = '';
-
     lenisStore.set(lenisInstance);
+
+    // Re-enable scrolling after everything is ready
+    document.body.classList.add('loaded');
   });
 
   onDestroy(() => {
@@ -64,5 +55,7 @@
 <svelte:head>
   <link rel="icon" href={favicon} />
 </svelte:head>
+
+<LoadingScreen />
 
 {@render children()}

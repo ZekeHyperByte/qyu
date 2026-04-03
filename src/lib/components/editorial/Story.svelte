@@ -5,13 +5,42 @@
   let sectionRef: HTMLElement;
   let ctx: any;
   let wordEls: HTMLSpanElement[] = [];
+  let animationReady = false;
 
   const storyText = "I'm Muhammad Fiqi Firmansyah — Qyu. Writing code since the 10th grade, now pursuing Informatics Engineering at Semarang State University, Indonesia. Fascinated by the architecture of massive codebases — the kind thousands of engineers shape over decades. I study how big tech builds systems that outlive their creators. When I'm not deep in a repository, I'm reading, watching films and anime, or tracking the latest in machine learning. Software engineering and ML aren't just fields I study — they're the craft I'm committed to mastering.";
 
   const words = storyText.split(' ');
 
   function collectWord(el: HTMLSpanElement) {
-    wordEls.push(el.querySelector('.story-word-inner') as HTMLSpanElement);
+    const inner = el.querySelector('.story-word-inner') as HTMLSpanElement;
+    if (inner && !wordEls.includes(inner)) {
+      wordEls.push(inner);
+    }
+  }
+
+  // Use tick to ensure all DOM elements are rendered before animating
+  function setupAnimation() {
+    if (wordEls.length === 0 || animationReady) return;
+    
+    animationReady = true;
+    
+    gsap.set(wordEls, { opacity: 0, x: 80, rotate: 3, filter: 'blur(4px)' });
+
+    gsap.to(wordEls, {
+      opacity: 1,
+      x: 0,
+      rotate: 0,
+      filter: 'blur(0px)',
+      duration: 0.8,
+      ease: 'power3.out',
+      stagger: 0.035,
+      scrollTrigger: {
+        trigger: sectionRef,
+        start: 'top 80%',
+        toggleActions: 'play none none reverse',
+        fastScrollEnd: true
+      }
+    });
   }
 
   onMount(async () => {
@@ -19,28 +48,17 @@
     gsap.registerPlugin(ScrollTrigger);
 
     ctx = gsap.context(() => {
-      gsap.set(wordEls, { opacity: 0, x: 80, rotate: 3, filter: 'blur(4px)' });
-
-      gsap.to(wordEls, {
-        opacity: 1,
-        x: 0,
-        rotate: 0,
-        filter: 'blur(0px)',
-        duration: 0.8,
-        ease: 'power3.out',
-        stagger: 0.035,
-        scrollTrigger: {
-          trigger: sectionRef,
-          start: 'top 80%',
-          toggleActions: 'play none none reverse',
-          fastScrollEnd: true
-        }
-      });
+      // Small delay to ensure all word elements are collected
+      setTimeout(() => {
+        setupAnimation();
+      }, 50);
     }, sectionRef);
   });
 
   onDestroy(() => {
     if (ctx) ctx.revert();
+    animationReady = false;
+    wordEls = [];
   });
 </script>
 

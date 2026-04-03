@@ -8,6 +8,7 @@
   let footerEl: HTMLElement;
   let layer2El: HTMLElement;
   let isMobile = false;
+  let isReady = false;
 
   function scrollToTop() {
     const lenis = $lenisStore;
@@ -19,9 +20,13 @@
   }
 
   function handleMouseMove(e: MouseEvent) {
-    if (isMobile) return;
+    if (isMobile || !isReady) return;
     if (!footerEl || !layer2El) return;
+    
+    // Ensure footer has valid dimensions before calculating
     const rect = footerEl.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
+    
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
 
@@ -38,7 +43,7 @@
   }
 
   function handleMouseLeave() {
-    if (isMobile) return;
+    if (isMobile || !isReady) return;
     if (!layer2El) return;
     gsap.to(layer2El, {
       rotateX: 0,
@@ -50,6 +55,16 @@
 
   onMount(() => {
     isMobile = window.innerWidth < 768;
+    
+    // Small delay to ensure DOM is fully rendered with correct dimensions
+    setTimeout(() => {
+      isReady = true;
+      
+      // Reset any transforms that might have been applied during load
+      if (layer2El) {
+        gsap.set(layer2El, { rotateX: 0, rotateY: 0 });
+      }
+    }, 100);
     
     if (!isMobile) {
       footerEl.addEventListener('mousemove', handleMouseMove);
@@ -88,6 +103,7 @@
         alt=""
         class="w-full h-full object-cover object-center"
         style="transform-style: preserve-3d;"
+        decoding="async"
       />
     </div>
 

@@ -3,6 +3,45 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<script>
+			// IMMEDIATE scroll prevention - runs before any rendering
+			(function() {
+				// Prevent browser scroll restoration
+				if ('scrollRestoration' in history) {
+					history.scrollRestoration = 'manual';
+				}
+				
+				// Force scroll to top multiple times to catch race conditions
+				window.scrollTo(0, 0);
+				
+				// Also prevent any scroll events during initial load
+				var preventScroll = function(e) {
+					window.scrollTo(0, 0);
+					e.preventDefault();
+					return false;
+				};
+				
+				window.addEventListener('scroll', preventScroll, { passive: false });
+				
+				// Remove the prevention after a short delay
+				setTimeout(function() {
+					window.removeEventListener('scroll', preventScroll);
+				}, 500);
+			})();
+		</script>
+		<style>
+			/* Hide content initially to prevent flash of footer */
+			html {
+				scroll-behavior: auto !important;
+			}
+			body {
+				overflow: hidden !important;
+			}
+			/* Re-enable after loading */
+			body.loaded {
+				overflow: auto !important;
+			}
+		</style>
 		%sveltekit.head%
 	</head>
 	<body data-sveltekit-preload-data="hover">
