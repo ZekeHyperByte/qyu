@@ -37,18 +37,18 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0&display=swap" />
 
 <!-- Dark hero section -->
-<section id="home" class="relative h-screen w-full flex flex-col justify-between px-8 lg:px-10 xl:px-20 max-w-[1440px] mx-auto py-8 lg:py-16">
+<section id="home" class="relative h-screen w-full flex flex-col justify-between px-8 lg:px-10 xl:px-20 py-8 lg:py-16">
 
   <!-- Gundam artwork -->
   <div
     bind:this={gundamEl}
     style="opacity: 0;"
-    class="absolute right-0 top-0 bottom-0 h-full pointer-events-none z-0 mix-blend-luminosity opacity-20 md:opacity-40"
+    class="absolute right-0 top-0 bottom-0 h-full pointer-events-none z-0 mix-blend-luminosity opacity-20 md:opacity-40 w-[40%] lg:w-[45%] xl:w-[50%]"
   >
     <img
       src="/Gundam3.png"
       alt="Gundam Art"
-      class="h-full w-auto object-contain object-right scale-90 md:scale-100 drop-shadow-2xl"
+      class="h-full w-full object-contain object-right scale-90 md:scale-100 drop-shadow-2xl"
       fetchpriority="high"
       loading="eager"
     />
@@ -57,7 +57,7 @@
   <!-- Heading -->
   <div class="relative z-10 flex-1 flex flex-col justify-center max-w-4xl xl:max-w-6xl pointer-events-auto">
     <h1
-      class="font-headline text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[7rem] xl:text-[8rem] leading-[0.88] tracking-[-0.03em] font-medium mb-12 cursor-default select-none text-on-surface"
+      class="font-headline text-[2.5rem] sm:text-[3.5rem] md:text-[5rem] lg:text-[7rem] xl:text-[8rem] 2xl:text-[10rem] leading-[0.88] tracking-[-0.03em] font-medium mb-12 cursor-default select-none text-on-surface"
     >
       {#each lines as lineWords}
         <span class="block">
