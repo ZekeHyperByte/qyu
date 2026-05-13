@@ -2,14 +2,16 @@
   import { lenisStore } from '$lib/stores/lenis';
   import { onMount, onDestroy } from 'svelte';
   import gsap from 'gsap';
-
-  export let isActive = false;
+  import footerJpg from '$lib/assets/footer.jpg';
+  import layer2Webp from '$lib/assets/layer2.webp';
 
   let footerEl: HTMLElement;
   let layer2El: HTMLElement;
   let isMobile = false;
   let isReady = false;
   let prefersReducedMotion = false;
+  let rafId: number | null = null;
+  let lastMouseEvent: MouseEvent | null = null;
 
   function scrollToTop() {
     const lenis = $lenisStore;
@@ -23,23 +25,27 @@
   function handleMouseMove(e: MouseEvent) {
     if (isMobile || prefersReducedMotion || !isReady) return;
     if (!footerEl || !layer2El) return;
-    
-    const rect = footerEl.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    
-    const x = (e.clientX - rect.left) / rect.width;
-    const y = (e.clientY - rect.top) / rect.height;
-
-    const rotateY = (x - 0.5) * 16;
-    const rotateX = (0.5 - y) * 10;
-
-    gsap.to(layer2El, {
-      rotateX,
-      rotateY,
-      duration: 0.5,
-      ease: 'power2.out',
-      overwrite: true
-    });
+    lastMouseEvent = e;
+    if (rafId === null) {
+      rafId = requestAnimationFrame(() => {
+        rafId = null;
+        if (!lastMouseEvent) return;
+        const rect = footerEl.getBoundingClientRect();
+        if (rect.width === 0 || rect.height === 0) return;
+        const x = (lastMouseEvent.clientX - rect.left) / rect.width;
+        const y = (lastMouseEvent.clientY - rect.top) / rect.height;
+        const rotateY = (x - 0.5) * 16;
+        const rotateX = (0.5 - y) * 10;
+        gsap.to(layer2El, {
+          rotateX,
+          rotateY,
+          duration: 0.5,
+          ease: 'power2.out',
+          overwrite: true
+        });
+        lastMouseEvent = null;
+      });
+    }
   }
 
   function handleMouseLeave() {
@@ -85,10 +91,10 @@
     
     <!-- Background Image with Overlay -->
     <div class="absolute inset-0 z-0 select-none pointer-events-none">
-    <img 
-      src="/footer.jpg" 
-      alt="Footer Background" 
-      class="w-full h-full object-cover object-center opacity-70 mix-blend-luminosity blur-[6px]" 
+    <enhanced:img
+      src={footerJpg}
+      alt="Footer Background"
+      class="w-full h-full object-cover object-center opacity-70 mix-blend-luminosity blur-[6px]"
     />
     <div class="absolute inset-0 bg-gradient-to-t from-[#0c0c0b] via-transparent to-[#0c0c0b]/60"></div>
     <div class="absolute inset-0 bg-black/20"></div>
@@ -96,9 +102,9 @@
 
     <!-- Layer 2: Cutout with 3D tilt -->
     <div class="absolute inset-0 z-[1] select-none pointer-events-none overflow-hidden">
-      <img
+      <enhanced:img
         bind:this={layer2El}
-        src="/layer2.png"
+        src={layer2Webp}
         alt=""
         class="w-full h-full object-cover object-center"
         style="transform-style: preserve-3d;"

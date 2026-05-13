@@ -1,4 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import '@fontsource/montserrat/latin-300.css';
+@import '@fontsource/montserrat/latin-400.css';
+@import '@fontsource/montserrat/latin-500.css';
+@import '@fontsource/montserrat/latin-600.css';
+@import '@fontsource/montserrat/latin-700.css';
+@import '@fontsource/montserrat/latin-800.css';
+@import '@fontsource/plus-jakarta-sans/latin-300.css';
+@import '@fontsource/plus-jakarta-sans/latin-400.css';
+@import '@fontsource/plus-jakarta-sans/latin-500.css';
+@import '@fontsource/plus-jakarta-sans/latin-600.css';
+@import '@fontsource/plus-jakarta-sans/latin-700.css';
 @import "tailwindcss";
 
 /* === DESIGN SYSTEM: The Digital Curator — Dark Edition === */
@@ -116,11 +126,6 @@ body::before {
 ::selection {
   background-color: var(--color-primary-fixed);
   color: var(--color-on-primary-fixed);
-}
-
-/* Material Symbols */
-.material-symbols-outlined {
-  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
 
 /* Marquee Animation */
@@ -328,4 +333,10 @@ body::before {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
   }
+}
+
+/* Performance: defer rendering for off-screen sections */
+#contact {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 100vh;
 }

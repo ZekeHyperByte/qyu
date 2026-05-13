@@ -12,4 +12,3 @@
   <About />
   <Footer />
 </div>
-

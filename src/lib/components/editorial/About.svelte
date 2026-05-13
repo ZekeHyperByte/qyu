@@ -1,7 +1,6 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import gsap from 'gsap';
-  export let isActive = false;
 
   let sectionRef: HTMLElement;
   let headlineSplit: any;

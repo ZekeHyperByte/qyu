@@ -1,8 +1,11 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import gsap from 'gsap';
-
-  export let isActive = false;
+  import atcsPreview from '$lib/assets/atcs-preview.webp';
+  import photonicPreview from '$lib/assets/photonic-preview.webp';
+  import lawangBps from '$lib/assets/lawang-bps.webp';
+  import seltronikCompro from '$lib/assets/seltronik-compro.png';
+  import medikuPreview from '$lib/assets/mediku-preview.webp';
 
   const projects = [
     {
@@ -14,7 +17,7 @@
       tags: ['React', 'Node.js', 'PostgreSQL', 'Docker'],
       industry: 'Industrial / Automation',
       client: 'PT. Seltronik',
-      imgUrl: '/atcs-preview.png',
+      img: atcsPreview,
     },
     {
       id: 2,
@@ -25,7 +28,7 @@
       tags: ['React', 'Fastify', 'Electron', 'SQLite'],
       industry: 'Events / Entertainment',
       client: 'Photonic',
-      imgUrl: '/photonic-preview.png',
+      img: photonicPreview,
     },
     {
       id: 3,
@@ -36,7 +39,7 @@
       tags: ['Flutter', 'Dart', 'Material Design', 'fl_chart'],
       industry: 'Government / Public Sector',
       client: 'BPS Kota Semarang',
-      imgUrl: '/lawang-bps.png',
+      img: lawangBps,
     },
     {
       id: 4,
@@ -47,7 +50,7 @@
       tags: ['Next.js', 'TypeScript', 'Supabase', 'Framer Motion'],
       industry: 'Corporate / SaaS',
       client: 'PT. Seltronik',
-      imgUrl: '/seltronik-compro.png',
+      img: seltronikCompro,
     },
     {
       id: 5,
@@ -58,7 +61,7 @@
       tags: ['Flutter', 'sqflite', 'fl_chart', 'Flutter Quill'],
       industry: 'Healthcare / Education',
       client: 'PPKO BEM FK',
-      imgUrl: '/mediku-preview.png',
+      img: medikuPreview,
     },
   ];
 
@@ -86,6 +89,8 @@
   let mobileGalleryEl: HTMLElement;
   let currentMobileIndex = 0;
   let intersectionObserver: IntersectionObserver | null = null;
+  let cachedCenterOffset = 0;
+  let cachedItemHeight = 0;
 
   let entryST: any = null;
   let mainST: any = null;
@@ -185,8 +190,7 @@
     const itemHeight = getItemHeight();
 
     if (isMobile) {
-      // Mobile: No scroll triggers needed for gallery
-      // The gallery handles its own navigation
+      cachedItemHeight = itemHeight;
       return;
     }
 
@@ -195,7 +199,7 @@
     entryST = ScrollTrigger.create({
       trigger: sectionEl,
       start: `top bottom+=${entryH}`,
-      end: () => `top+=${entryH} top`,
+      end: () => `top+=${entryH} top+=10%`,
       scrub: 1.2,
       onUpdate(self) {
         const p = self.progress;
@@ -211,9 +215,10 @@
 
     const listArea = listContainerEl?.parentElement;
     const listAreaHeight = listArea?.clientHeight || (window.innerHeight - 160);
-    const centerOffset = (listAreaHeight / 2) - (itemHeight / 2);
+    cachedCenterOffset = (listAreaHeight / 2) - (itemHeight / 2);
+    cachedItemHeight = itemHeight;
 
-    gsap.set(listContainerEl, { y: centerOffset });
+    gsap.set(listContainerEl, { y: cachedCenterOffset });
 
     mainST = ScrollTrigger.create({
       trigger: sectionEl,
@@ -222,6 +227,11 @@
       pin: panelEl,
       pinSpacing: true,
       anticipatePin: 1,
+      snap: {
+        snapTo: 1 / (N - 1),
+        duration: 0.25,
+        ease: 'power2.out',
+      },
       onEnterBack(self) {
         const fractionalIndex = self.progress * (N - 1);
         activeIndex = Math.round(fractionalIndex);
@@ -238,7 +248,7 @@
           gsap.set(el, { autoAlpha: alpha, color: `rgba(255,255,255,${colorVal})` });
         });
 
-        if (listContainerEl) gsap.set(listContainerEl, { y: centerOffset - fractionalIndex * itemHeight });
+        if (listContainerEl) gsap.set(listContainerEl, { y: cachedCenterOffset - fractionalIndex * cachedItemHeight });
         if (yearBadgeEl) gsap.set(yearBadgeEl, { autoAlpha: 1, y: 0 });
       },
       onUpdate(self) {
@@ -246,7 +256,7 @@
 
         if (progressFillEl) gsap.set(progressFillEl, { scaleY: self.progress });
 
-        if (listContainerEl) gsap.set(listContainerEl, { y: centerOffset - fractionalIndex * itemHeight });
+        if (listContainerEl) gsap.set(listContainerEl, { y: cachedCenterOffset - fractionalIndex * cachedItemHeight });
         updateListVisuals(fractionalIndex);
       },
     });
@@ -306,7 +316,7 @@
     class="w-full h-screen flex flex-col md:flex-row bg-[#0c0c0b]"
   >
 
-    <div bind:this={leftPanelEl} class="relative flex flex-col w-full md:w-[42%] h-auto md:h-full flex-shrink-0">
+    <div bind:this={leftPanelEl} class="relative flex flex-col w-full md:w-[42%] h-auto md:h-full flex-shrink-0" style="margin-top: -15px">
 
       <div bind:this={imgContainerEl} class="relative flex-shrink-0 overflow-hidden" style="height: 65vh;">
         {#each projects as project, i}
@@ -314,8 +324,8 @@
             bind:this={imgEls[i]}
             class="absolute inset-0 overflow-hidden"
           >
-            <img
-              src={project.imgUrl}
+            <enhanced:img
+              src={project.img}
               alt={project.title}
               class="w-full h-full object-contain object-center bg-[#0c0c0b]"
               loading={i === 0 ? 'eager' : 'lazy'}
@@ -349,7 +359,7 @@
               <dd class="font-body text-white/65 text-[11px] md:text-[12px]">{project.client}</dd>
             </dl>
 
-            <a href="#"
+            <a href="#works"
               class="group inline-flex items-center gap-2 mt-auto pt-6 md:pt-8 text-white/40 hover:text-white transition-colors duration-300 font-label text-[8px] md:text-[9px] uppercase tracking-[0.24em]">
               Explore the case
               <svg class="w-2.5 h-2.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -443,8 +453,8 @@
       <article class="mobile-slide">
         <!-- Image Container -->
         <div class="relative w-full aspect-[4/3] rounded-xl overflow-hidden bg-[#1a1a18] mb-4">
-          <img
-            src={project.imgUrl}
+          <enhanced:img
+            src={project.img}
             alt={project.title}
             class="w-full h-full object-cover object-center"
             loading={i < 2 ? 'eager' : 'lazy'}
@@ -562,14 +572,6 @@
     line-height: 1;
     letter-spacing: -0.03em;
     white-space: nowrap;
-  }
-
-  .meta-enter {
-    animation: metaIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-  @keyframes metaIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to   { opacity: 1; transform: translateY(0); }
   }
 
   /* Mobile Gallery Styles - Native Scroll-Snap for Smooth Performance */

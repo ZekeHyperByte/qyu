@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import gsap from 'gsap';
+  import gundamImg from '$lib/assets/Gundam3.png';
 
   const lines: { text: string; italic?: boolean; dot?: boolean }[][] = [
     [
@@ -34,8 +35,6 @@
   });
 </script>
 
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0&display=swap" />
-
 <!-- Dark hero section -->
 <section id="home" class="relative h-screen w-full flex flex-col justify-between px-8 lg:px-10 xl:px-20 py-8 lg:py-16">
 
@@ -45,8 +44,8 @@
     style="opacity: 0;"
     class="absolute right-0 top-0 bottom-0 h-full pointer-events-none z-0 mix-blend-luminosity opacity-20 md:opacity-40 w-[40%] lg:w-[45%] xl:w-[50%]"
   >
-    <img
-      src="/Gundam3.png"
+    <enhanced:img
+      src={gundamImg}
       alt="Gundam Art"
       class="h-full w-full object-contain object-right scale-90 md:scale-100 drop-shadow-2xl"
       fetchpriority="high"

@@ -24,13 +24,11 @@
     
     animationReady = true;
     
-    gsap.set(wordEls, { opacity: 0, x: 80, rotate: 3, filter: 'blur(4px)' });
+    gsap.set(wordEls, { opacity: 0, x: 80 });
 
     gsap.to(wordEls, {
       opacity: 1,
       x: 0,
-      rotate: 0,
-      filter: 'blur(0px)',
       duration: 0.8,
       ease: 'power3.out',
       stagger: 0.035,
@@ -89,6 +87,5 @@
 
   .story-word-inner {
     display: inline-block;
-    will-change: transform, opacity;
   }
 </style>
