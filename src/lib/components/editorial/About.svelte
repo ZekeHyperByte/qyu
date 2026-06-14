@@ -27,27 +27,30 @@
         headlineSplit.words[headlineSplit.words.length - 1].classList.add('gradient-text');
       }
 
-      gsap.set('.about-headline .line', { overflow: 'hidden' });
+      if (prefersReducedMotion) {
+        // No motion: just make sure the headline is visible at rest.
+        gsap.set(headlineSplit.words, { yPercent: 0, rotate: 0, opacity: 1 });
+      } else {
+        gsap.set('.about-headline .line', { overflow: 'hidden' });
 
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: sectionRef,
-          start: 'top 60%',
-          toggleActions: prefersReducedMotion ? 'none none none none' : 'play none none reverse',
-          onEnterBack: () => {
-            if (!prefersReducedMotion) tl.restart();
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: sectionRef,
+            start: 'top 60%',
+            toggleActions: 'play none none reverse',
+            onEnterBack: () => tl.restart()
           }
-        }
-      });
+        });
 
-      tl.from(headlineSplit.words, {
-        yPercent: 140,
-        rotate: 4,
-        transformOrigin: "0% 100%",
-        duration: 1.5,
-        stagger: 0.12,
-        ease: 'expo.out',
-      });
+        tl.from(headlineSplit.words, {
+          yPercent: 140,
+          rotate: 4,
+          transformOrigin: "0% 100%",
+          duration: 1.5,
+          stagger: 0.12,
+          ease: 'expo.out',
+        });
+      }
 
       const subheadlineEl = sectionRef.querySelector('.subheadline') as HTMLElement;
       if (subheadlineEl && !prefersReducedMotion) {

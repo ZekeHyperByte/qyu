@@ -44,6 +44,16 @@
 
     // Re-enable scrolling after everything is ready
     document.body.classList.add('loaded');
+
+    // ScrollTriggers are created during the loading screen, before images
+    // finish loading. Once the page fully loads (images settle the layout),
+    // recompute all trigger positions so reveals fire at the right scroll point.
+    const refresh = () => ScrollTrigger.refresh();
+    if (document.readyState === 'complete') {
+      requestAnimationFrame(refresh);
+    } else {
+      window.addEventListener('load', refresh, { once: true });
+    }
   });
 
   onDestroy(() => {
