@@ -23,7 +23,12 @@
     if (wordEls.length === 0 || animationReady) return;
     
     animationReady = true;
-    
+
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(wordEls, { opacity: 1, x: 0 });
+      return;
+    }
+
     gsap.set(wordEls, { opacity: 0, x: 80 });
 
     gsap.to(wordEls, {

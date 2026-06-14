@@ -163,7 +163,7 @@
     font-family: var(--font-body);
     font-size: clamp(0.75rem, 3vw, 1.2rem);
     font-weight: 300;
-    color: rgba(232, 232, 228, 0.45);
+    color: rgba(232, 232, 228, 0.6);
     letter-spacing: 0.02em;
     line-height: 1.5;
     max-width: 60ch;

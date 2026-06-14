@@ -18,6 +18,7 @@
       industry: 'Industrial / Automation',
       client: 'PT. Seltronik',
       img: atcsPreview,
+      link: '',
     },
     {
       id: 2,
@@ -29,6 +30,7 @@
       industry: 'Events / Entertainment',
       client: 'Photonic',
       img: photonicPreview,
+      link: '',
     },
     {
       id: 3,
@@ -40,6 +42,7 @@
       industry: 'Government / Public Sector',
       client: 'BPS Kota Semarang',
       img: lawangBps,
+      link: '',
     },
     {
       id: 4,
@@ -51,6 +54,7 @@
       industry: 'Corporate / SaaS',
       client: 'PT. Seltronik',
       img: seltronikCompro,
+      link: '',
     },
     {
       id: 5,
@@ -62,6 +66,7 @@
       industry: 'Healthcare / Education',
       client: 'PPKO BEM FK',
       img: medikuPreview,
+      link: '',
     },
   ];
 
@@ -96,6 +101,7 @@
   let mainST: any = null;
   let ScrollTrigger: any = null;
   let capturedVH = 0;
+  let prefersReducedMotion = false;
 
   function checkMobile() {
     isMobile = window.innerWidth < 768;
@@ -152,7 +158,7 @@
   function cleanup() {
     entryST?.kill();
     mainST?.kill();
-    if (ScrollTrigger) ScrollTrigger.getAll().forEach(t => t.kill());
+    if (ScrollTrigger) ScrollTrigger.getAll().forEach((t: any) => t.kill());
   }
 
   function setupIntersectionObserver() {
@@ -194,24 +200,29 @@
       return;
     }
 
-    const entryH = window.innerHeight * 0.9;
+    // Decorative entrance parallax — skip for reduced-motion users
+    if (!prefersReducedMotion) {
+      const entryH = window.innerHeight * 0.9;
 
-    entryST = ScrollTrigger.create({
-      trigger: sectionEl,
-      start: `top bottom+=${entryH}`,
-      end: () => `top+=${entryH} top+=10%`,
-      scrub: 1.2,
-      onUpdate(self) {
-        const p = self.progress;
-        const eased = gsap.parseEase('power2.out')(p);
+      entryST = ScrollTrigger.create({
+        trigger: sectionEl,
+        start: `top bottom+=${entryH}`,
+        end: () => `top+=${entryH} top+=10%`,
+        scrub: 1.2,
+        onUpdate(self: any) {
+          const p = self.progress;
+          const eased = gsap.parseEase('power2.out')(p);
 
-        gsap.set(leftPanelEl, { y: (1 - eased) * 140 });
-        gsap.set(rightPanelEl, { y: (1 - eased) * 140 });
-        gsap.set(imgContainerEl, { y: (1 - eased) * 30 });
-        gsap.set(headerEl, { y: (1 - eased) * 15 });
-        gsap.set(bottomHintEl, { y: (1 - eased) * 10 });
-      },
-    });
+          gsap.set(leftPanelEl, { y: (1 - eased) * 140 });
+          gsap.set(rightPanelEl, { y: (1 - eased) * 140 });
+          gsap.set(imgContainerEl, { y: (1 - eased) * 30 });
+          gsap.set(headerEl, { y: (1 - eased) * 15 });
+          gsap.set(bottomHintEl, { y: (1 - eased) * 10 });
+        },
+      });
+    } else {
+      gsap.set([leftPanelEl, rightPanelEl, imgContainerEl, headerEl, bottomHintEl], { y: 0 });
+    }
 
     const listArea = listContainerEl?.parentElement;
     const listAreaHeight = listArea?.clientHeight || (window.innerHeight - 160);
@@ -229,10 +240,10 @@
       anticipatePin: 1,
       snap: {
         snapTo: 1 / (N - 1),
-        duration: 0.25,
+        duration: prefersReducedMotion ? 0 : 0.25,
         ease: 'power2.out',
       },
-      onEnterBack(self) {
+      onEnterBack(self: any) {
         const fractionalIndex = self.progress * (N - 1);
         activeIndex = Math.round(fractionalIndex);
 
@@ -251,7 +262,7 @@
         if (listContainerEl) gsap.set(listContainerEl, { y: cachedCenterOffset - fractionalIndex * cachedItemHeight });
         if (yearBadgeEl) gsap.set(yearBadgeEl, { autoAlpha: 1, y: 0 });
       },
-      onUpdate(self) {
+      onUpdate(self: any) {
         const fractionalIndex = self.progress * (N - 1);
 
         if (progressFillEl) gsap.set(progressFillEl, { scaleY: self.progress });
@@ -266,6 +277,7 @@
     const { default: ST } = await import('gsap/ScrollTrigger');
     ScrollTrigger = ST;
 
+    prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     checkMobile();
     
     if (!isMobile) {
@@ -294,18 +306,22 @@
       }, 300);
     };
     window.addEventListener('resize', onResize);
-
-    return () => {
-      window.removeEventListener('resize', onResize);
-      if (intersectionObserver) {
-        intersectionObserver.disconnect();
-        intersectionObserver = null;
-      }
-      cleanup();
-    };
+    resizeHandler = onResize;
   });
 
-  onDestroy(cleanup);
+  let resizeHandler: (() => void) | null = null;
+
+  onDestroy(() => {
+    if (resizeHandler) {
+      window.removeEventListener('resize', resizeHandler);
+      resizeHandler = null;
+    }
+    if (intersectionObserver) {
+      intersectionObserver.disconnect();
+      intersectionObserver = null;
+    }
+    cleanup();
+  });
 </script>
 
 <!-- Desktop Version -->
@@ -342,30 +358,32 @@
             style="will-change: transform, opacity;"
           >
             <dl class="grid grid-cols-[70px_1fr] md:grid-cols-[90px_1fr] gap-y-5 md:gap-y-6 text-sm">
-              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/35 pt-0.5">Overview</dt>
+              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/50 pt-0.5">Overview</dt>
               <dd class="font-body text-white/65 text-[11px] md:text-[12px] leading-relaxed">{project.subtitle}</dd>
 
-              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/35 pt-0.5">Tags</dt>
+              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/50 pt-0.5">Tags</dt>
               <dd class="flex flex-wrap gap-1.5">
                 {#each project.tags as tag}
                   <span class="text-white/55 border border-white/15 px-2 py-[3px] text-[8px] md:text-[9px] font-label tracking-wide">{tag}</span>
                 {/each}
               </dd>
 
-              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/35 pt-0.5">Industry</dt>
+              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/50 pt-0.5">Industry</dt>
               <dd class="font-body text-white/65 text-[11px] md:text-[12px]">{project.industry}</dd>
 
-              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/35 pt-0.5">Client</dt>
+              <dt class="font-label text-[8px] md:text-[9px] uppercase tracking-widest text-white/50 pt-0.5">Client</dt>
               <dd class="font-body text-white/65 text-[11px] md:text-[12px]">{project.client}</dd>
             </dl>
 
-            <a href="#works"
-              class="group inline-flex items-center gap-2 mt-auto pt-6 md:pt-8 text-white/40 hover:text-white transition-colors duration-300 font-label text-[8px] md:text-[9px] uppercase tracking-[0.24em]">
-              Explore the case
-              <svg class="w-2.5 h-2.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/>
-              </svg>
-            </a>
+            {#if project.link}
+              <a href={project.link} target="_blank" rel="noopener noreferrer"
+                class="group inline-flex items-center gap-2 mt-auto pt-6 md:pt-8 text-white/40 hover:text-white transition-colors duration-300 font-label text-[8px] md:text-[9px] uppercase tracking-[0.24em]">
+                Explore the case
+                <svg class="w-2.5 h-2.5 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25"/>
+                </svg>
+              </a>
+            {/if}
           </div>
         {/each}
       </div>
@@ -375,8 +393,8 @@
 
       <div bind:this={headerEl} class="flex items-start justify-between px-5 md:px-12 pt-5 md:pt-8 pb-0">
         <div>
-          <p class="font-label text-[8px] md:text-[9px] uppercase tracking-[0.28em] text-white/35">Selected Works</p>
-          <p class="font-label text-[8px] md:text-[9px] uppercase tracking-[0.18em] text-white/20 mt-0.5">Vol. 01 — 2023–2025</p>
+          <p class="font-label text-[8px] md:text-[9px] uppercase tracking-[0.28em] text-white/50">Selected Works</p>
+          <p class="font-label text-[8px] md:text-[9px] uppercase tracking-[0.18em] text-white/40 mt-0.5">Vol. 01 — 2023–2025</p>
         </div>
         <div class="relative w-px h-8 md:h-10 bg-white/10 overflow-hidden flex-shrink-0">
           <div bind:this={progressFillEl} class="absolute top-0 left-0 w-full bg-primary origin-top" style="height: 100%; transform: scaleY(0);"></div>
@@ -388,7 +406,7 @@
           bind:this={yearBadgeEl}
           class="hidden md:block absolute left-0 top-1/2 -translate-y-1/2 -translate-x-full pr-4"
         >
-          <span class="font-label text-[10px] text-white/35 tracking-[0.2em]">{projects[activeIndex]?.year}</span>
+          <span class="font-label text-[10px] text-white/50 tracking-[0.2em]">{projects[activeIndex]?.year}</span>
         </div>
 
         <div bind:this={listContainerEl} class="list-column" style="will-change: transform;">
@@ -407,7 +425,7 @@
 
       <div bind:this={bottomHintEl} class="flex items-center gap-3 px-5 md:px-12 pb-5 md:pb-8">
         <span class="w-1 h-1 rounded-full bg-primary animate-pulse"></span>
-        <p class="font-label text-[8px] md:text-[9px] uppercase tracking-[0.26em] text-white/25">Scroll to explore</p>
+        <p class="font-label text-[8px] md:text-[9px] uppercase tracking-[0.26em] text-white/45">Scroll to explore</p>
       </div>
     </div>
 
@@ -421,8 +439,8 @@
   <div class="px-5 mb-4">
     <div class="flex items-center justify-between">
       <div>
-        <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/35 mb-1">Selected Works</p>
-        <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/20">Vol. 01 — 2023–2025</p>
+        <p class="font-label text-[10px] uppercase tracking-[0.28em] text-white/50 mb-1">Selected Works</p>
+        <p class="font-label text-[10px] uppercase tracking-[0.18em] text-white/40">Vol. 01 — 2023–2025</p>
       </div>
       <!-- Project Counter (Top Right Only) -->
       <div class="flex items-baseline gap-1">
@@ -501,15 +519,18 @@
               <p class="font-label text-[9px] uppercase tracking-wider text-white/30 mb-0.5">Client</p>
               <p class="font-body text-xs text-white/70 truncate max-w-[120px]">{project.client}</p>
             </div>
-            <a 
-              href="#" 
-              class="flex items-center gap-1 text-white/50 hover:text-primary transition-colors font-label text-[10px] uppercase tracking-wider"
-            >
-              View
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
-              </svg>
-            </a>
+            {#if project.link}
+              <a
+                href={project.link}
+                target="_blank" rel="noopener noreferrer"
+                class="flex items-center gap-1 text-white/50 hover:text-primary transition-colors font-label text-[10px] uppercase tracking-wider"
+              >
+                View
+                <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            {/if}
           </div>
         </div>
       </article>
@@ -560,7 +581,7 @@
     font-family: var(--font-body);
     font-size: 11px;
     letter-spacing: 0.2em;
-    color: rgba(255, 255, 255, 0.3);
+    color: rgba(255, 255, 255, 0.5);
     flex-shrink: 0;
     width: 20px;
   }
@@ -613,6 +634,7 @@
   .line-clamp-3 {
     display: -webkit-box;
     -webkit-line-clamp: 3;
+    line-clamp: 3;
     -webkit-box-orient: vertical;
     overflow: hidden;
   }

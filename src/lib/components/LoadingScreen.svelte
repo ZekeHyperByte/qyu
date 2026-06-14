@@ -9,32 +9,53 @@
   let maskRect: SVGRectElement;
   let loadingText: HTMLSpanElement;
 
-  // Simulate loading progress
-  function simulateLoading() {
-    const duration = 2000; // 2 seconds total loading time
+  const MIN_DISPLAY = 600; // floor so loader never flashes on fast loads
+  const MAX_WAIT = 6000;   // ceiling so a stalled asset can't trap the user
+
+  function setMask(p: number) {
+    if (!maskRect) return;
+    const height = 200;
+    maskRect.setAttribute('y', String(height - p * height));
+    maskRect.setAttribute('height', String(p * height));
+  }
+
+  // Drive the bar off real readiness: ramp toward 90% while assets load,
+  // snap to 100% once window 'load' (or fonts) actually fire.
+  function trackLoading() {
     const startTime = Date.now();
+    let done = false;
 
-    function updateProgress() {
-      const elapsed = Date.now() - startTime;
-      progress = Math.min(elapsed / duration, 1);
-
-      // Update mask position to reveal the fill from bottom to top
-      if (maskRect) {
-        const height = 200;
-        const newY = height - (progress * height);
-        maskRect.setAttribute('y', String(newY));
-        maskRect.setAttribute('height', String(progress * height));
-      }
-
-      if (progress < 1) {
-        requestAnimationFrame(updateProgress);
-      } else {
-        // Loading complete - animate out
+    const finish = () => {
+      if (done) return;
+      done = true;
+      const wait = Math.max(0, MIN_DISPLAY - (Date.now() - startTime));
+      const settle = () => {
+        progress = 1;
+        setMask(1);
         setTimeout(hideLoading, 300);
-      }
-    }
+      };
+      wait > 0 ? setTimeout(settle, wait) : settle();
+    };
 
-    requestAnimationFrame(updateProgress);
+    // Real signals
+    if (document.readyState === 'complete') {
+      finish();
+    } else {
+      window.addEventListener('load', finish, { once: true });
+    }
+    if (document.fonts?.ready) document.fonts.ready.then(finish);
+    setTimeout(finish, MAX_WAIT); // hard ceiling
+
+    // Visual ramp — eases toward 0.9 until the real signal lands
+    function ramp() {
+      if (done) return;
+      const elapsed = Date.now() - startTime;
+      const target = 1 - Math.exp(-elapsed / 900); // approaches 1, capped below
+      progress = Math.min(0.9, target);
+      setMask(progress);
+      requestAnimationFrame(ramp);
+    }
+    requestAnimationFrame(ramp);
   }
 
   function hideLoading() {
@@ -69,10 +90,7 @@
   }
 
   onMount(() => {
-    // Small delay to ensure everything is ready
-    setTimeout(() => {
-      simulateLoading();
-    }, 100);
+    trackLoading();
   });
 
   onDestroy(() => {

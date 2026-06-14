@@ -23,6 +23,12 @@
   }
 
   onMount(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.set(charEls, { opacity: 1, x: 0 });
+      gsap.set(gundamEl, { opacity: 1, x: 0 });
+      return;
+    }
+
     mainTl = gsap.timeline()
       .fromTo(charEls,
         { opacity: 0, x: -16 },
