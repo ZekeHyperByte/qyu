@@ -25,10 +25,10 @@
 </script>
 
 <nav class="absolute top-6 right-6 z-50 flex items-center gap-4 md:top-8 md:right-8">
-  <div class="font-label hidden items-center gap-4 text-xs tracking-[0.2em] text-white/70 uppercase sm:flex">
-    <a href="#about" class="transition-colors hover:text-white">About</a>
-    <a href="#work" class="transition-colors hover:text-white">Work</a>
-    <a href="#contact" class="transition-colors hover:text-white">Contact</a>
+  <div class="sr-only">
+    <a href="#about">About</a>
+    <a href="#work">Work</a>
+    <a href="#contact">Contact</a>
   </div>
   <div class="relative" bind:this={root}>
     <button
