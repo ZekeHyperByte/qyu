@@ -64,9 +64,15 @@
   {/if}
 
   <div bind:this={textEl}>
-    <img src={profilePhoto} alt="M Fiqi F" class="mb-6 aspect-video w-full max-w-lg rounded-2xl object-cover" />
+    <img
+      src={profilePhoto}
+      alt="Muhammad Fiqi Firmansyah — Software Engineer"
+      class="mb-6 aspect-video w-full max-w-lg rounded-2xl object-cover"
+    />
     <h1 class="font-headline mb-6 max-w-md text-4xl leading-[1.05] font-bold tracking-tight text-on-surface sm:text-5xl">
-      M Fiqi F <span class="font-light text-primary italic">— Qiiyu</span>
+      <span class="sr-only">Muhammad Fiqi Firmansyah — </span>M Fiqi F <span
+        class="font-light text-primary italic">— Qiiyu</span
+      >
     </h1>
     <p class="font-body max-w-sm text-base leading-relaxed text-on-surface/65 sm:text-lg">
       Full-stack & mobile engineer — React, Flutter, Node — shipping production systems, with
