@@ -360,6 +360,16 @@ body::before {
   background-color: var(--color-tertiary);
 }
 
+/* Hides the scrollbar while keeping the element scrollable */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
 /* Performance: defer rendering for off-screen sections */
 #contact {
   content-visibility: auto;

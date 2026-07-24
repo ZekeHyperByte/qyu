@@ -7,7 +7,7 @@
 
 <section
   id="work"
-  class="animate-fade-in-up animation-delay-300 flex h-full w-full flex-col justify-start border-b border-outline-variant/60 px-8 py-10 lg:px-12 xl:px-16"
+  class="animate-fade-in-up animation-delay-300 flex h-full w-full flex-col justify-start px-8 py-10 lg:px-12 xl:px-16"
 >
   <p class="font-label mb-4 text-xs tracking-[0.3em] text-on-surface-variant uppercase">Work Collection</p>
 
