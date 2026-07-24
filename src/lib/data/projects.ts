@@ -1,6 +1,17 @@
-import atcsPreview from '$lib/assets/atcs-preview.webp';
+import atcsHome from '$lib/assets/atcs-home.webp';
+import atcsLiveMonitoring from '$lib/assets/atcs-live-monitoring.webp';
+import atcsController from '$lib/assets/atcs-controller.webp';
+import atcsFtc from '$lib/assets/atcs-ftc.webp';
+import atcsTrafficConfig from '$lib/assets/atcs-traffic-config.webp';
+import atcsIntersections from '$lib/assets/atcs-intersections.webp';
 import photonicPreview from '$lib/assets/photonic-preview.webp';
-import lawangBps from '$lib/assets/lawang-bps.webp';
+import photonicDemo from '$lib/assets/photonic-demo.mp4';
+import lawangHome from '$lib/assets/lawang-home.webp';
+import lawangEkonomi from '$lib/assets/lawang-ekonomi.webp';
+import lawangSosial from '$lib/assets/lawang-sosial.webp';
+import lawangPembangunan from '$lib/assets/lawang-pembangunan.webp';
+import lawangDetail from '$lib/assets/lawang-detail.webp';
+import lawangLogo from '$lib/assets/lawang-logo.webp';
 import seltronikComproLoading from '$lib/assets/seltronik-compro-loading.webp';
 import seltronikComproBeranda from '$lib/assets/seltronik-compro-beranda.webp';
 import seltronikComproTentang from '$lib/assets/seltronik-compro-tentang.webp';
@@ -19,6 +30,7 @@ export type Project = {
   industry: string;
   client: string;
   img: string;
+  video?: string;
   gallery?: string[];
   captions?: string[];
   link: string;
@@ -35,7 +47,16 @@ export const projects: Project[] = [
     tags: ['React', 'Node.js', 'PostgreSQL', 'Docker'],
     industry: 'Industrial / Automation',
     client: 'PT. Seltronik',
-    img: atcsPreview,
+    img: atcsHome,
+    gallery: [atcsHome, atcsLiveMonitoring, atcsController, atcsFtc, atcsTrafficConfig, atcsIntersections],
+    captions: [
+      'Home Dashboard',
+      'Live Monitoring',
+      'Controller',
+      'FTC (Fixed Time Controller)',
+      'Traffic Lane Config',
+      'Intersections'
+    ],
     link: ''
   },
   {
@@ -49,19 +70,22 @@ export const projects: Project[] = [
     industry: 'Events / Entertainment',
     client: 'Photonic',
     img: photonicPreview,
+    video: photonicDemo,
     link: ''
   },
   {
     id: 3,
     year: '2024',
-    title: 'Lawang BPS',
+    title: 'Mobile App LAWANG',
     subtitle:
       'Offline-first Flutter mobile app delivering statistical data for Semarang City across 10 categories — no internet required.',
     category: 'Mobile / UX Design',
     tags: ['Flutter', 'Dart', 'Material Design', 'fl_chart'],
     industry: 'Government / Public Sector',
     client: 'BPS Kota Semarang',
-    img: lawangBps,
+    img: lawangHome,
+    gallery: [lawangHome, lawangEkonomi, lawangSosial, lawangPembangunan, lawangDetail, lawangLogo],
+    captions: ['Home Dashboard', 'Ekonomi Category', 'Sosial Category', 'Pembangunan Category', 'Data Detail View', 'App Icon'],
     link: ''
   },
   {

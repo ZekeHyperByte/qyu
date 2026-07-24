@@ -30,7 +30,8 @@
   $effect(() => {
     const isActive = active;
 
-    const hidden = 'inset(0% 100% 0% 0%)';
+    const isPortrait = project?.id === 3;
+    const hidden = isPortrait ? 'inset(0% 0% 100% 0%)' : 'inset(0% 100% 0% 0%)';
     const revealed = 'inset(0% 0% 0% 0%)';
 
     if (firstRun) {
@@ -83,13 +84,26 @@
     class:pointer-events-auto={active}
   >
     {#if project}
-      {#if images.length > 1}
+      {#if project.video}
+        <video
+          bind:this={imgEl}
+          src={project.video}
+          class="max-h-full max-w-full object-contain"
+          autoplay
+          muted
+          loop
+          playsinline
+        ></video>
+      {:else if images.length > 1}
         <div bind:this={imgEl} class="relative w-full min-h-0 flex-1">
           {#each images as src, i (src)}
             <enhanced:img
               {src}
               alt={project.title}
-              class="absolute inset-0 h-full w-full object-contain transition-opacity duration-700 ease-in-out"
+              class="absolute inset-x-0 w-full object-contain transition-opacity duration-700 ease-in-out {project.id ===
+              3
+                ? 'bottom-0 h-[82%]'
+                : 'inset-y-0 h-full'}"
               style="opacity: {i === currentIndex ? 1 : 0}"
             />
           {/each}
