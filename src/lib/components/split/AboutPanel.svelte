@@ -34,6 +34,8 @@
     const hidden = isPortrait ? 'inset(0% 0% 100% 0%)' : 'inset(0% 100% 0% 0%)';
     const revealed = 'inset(0% 0% 0% 0%)';
 
+    gsap.killTweensOf([textEl, imageEl, imgEl]);
+
     if (firstRun) {
       firstRun = false;
       gsap.set(imageEl, { opacity: 0 });
