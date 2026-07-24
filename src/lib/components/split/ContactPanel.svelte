@@ -7,6 +7,10 @@
     <h2 class="font-headline text-xl leading-none font-bold tracking-tight text-on-surface uppercase sm:text-2xl">
       Let's start talking
     </h2>
+    <p class="sr-only">
+      Reach Muhammad Fiqi Firmansyah on LinkedIn, email, Instagram, Discord, or Spotify — links
+      below.
+    </p>
   </div>
 
   <div class="flex flex-wrap items-center gap-4 sm:gap-5">

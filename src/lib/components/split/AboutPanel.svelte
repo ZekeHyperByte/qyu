@@ -80,6 +80,15 @@
       Full-stack & mobile software engineer — React, Flutter, Node — shipping production systems,
       with machine learning close behind.
     </p>
+    <p class="sr-only">
+      Also known online as Qiiyu, I build full-stack web and mobile applications end-to-end — from
+      React and Flutter frontends to Node.js backends — for clients across government, healthcare,
+      corporate, and events industries. My work includes an adaptive traffic control system for
+      Indonesian cities, a multi-role healthcare app with AI-assisted diagnostics, an offline-first
+      statistics platform for a city government, a commercial photo booth system, and a corporate
+      company profile platform, with a growing focus on applying machine learning to production
+      systems.
+    </p>
   </div>
 
   <div

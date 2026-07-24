@@ -3,10 +3,10 @@
   import AboutPanel from '$lib/components/split/AboutPanel.svelte';
   import WorkPanel from '$lib/components/split/WorkPanel.svelte';
   import ContactPanel from '$lib/components/split/ContactPanel.svelte';
-  import type { Project } from '$lib/data/projects';
+  import { projects, type Project } from '$lib/data/projects';
 
   let selectedProject: Project | null = $state(null);
-  let lastProject: Project | null = $state(null);
+  let lastProject: Project | null = $state(projects[0]);
 
   let curtainEl: HTMLDivElement;
   let detailTextEl: HTMLDivElement;
@@ -57,9 +57,13 @@
 <svelte:window onkeydown={handleKeydown} />
 
 <div class="bg-surface text-on-surface relative h-dvh w-full overflow-hidden">
-  <span class="font-doodle fixed top-6 left-6 z-50 text-5xl text-white md:top-8 md:left-8 md:text-6xl">
+  <a
+    href="/"
+    aria-label="Qiiyu — home"
+    class="font-doodle fixed top-6 left-6 z-50 text-5xl text-white md:top-8 md:left-8 md:text-6xl"
+  >
     qiiyu
-  </span>
+  </a>
 
   {#if selectedProject}
     <button

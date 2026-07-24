@@ -28,6 +28,7 @@
           <span class="font-label absolute right-3 bottom-3 left-3 text-sm font-semibold tracking-tight text-white sm:text-base">
             {project.title}
           </span>
+          <span class="sr-only">{project.subtitle}</span>
         </button>
       </li>
     {/each}
