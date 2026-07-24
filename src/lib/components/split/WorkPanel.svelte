@@ -19,7 +19,7 @@
           onclick={() => onselect(project)}
           class="project-card group relative block aspect-[4/3] w-full overflow-hidden bg-surface-container text-left"
         >
-          <enhanced:img
+          <img
             src={project.img}
             alt={project.title}
             class="project-image absolute inset-0 h-full w-full object-cover"

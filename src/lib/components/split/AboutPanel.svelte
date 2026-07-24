@@ -64,11 +64,7 @@
   {/if}
 
   <div bind:this={textEl}>
-    <enhanced:img
-      src={profilePhoto}
-      alt="M Fiqi F"
-      class="mb-6 aspect-video w-full max-w-lg rounded-2xl object-cover"
-    />
+    <img src={profilePhoto} alt="M Fiqi F" class="mb-6 aspect-video w-full max-w-lg rounded-2xl object-cover" />
     <h1 class="font-headline mb-6 max-w-md text-4xl leading-[1.05] font-bold tracking-tight text-on-surface sm:text-5xl">
       M Fiqi F <span class="font-light text-primary italic">— Qiiyu</span>
     </h1>
@@ -97,7 +93,7 @@
       {:else if images.length > 1}
         <div bind:this={imgEl} class="relative w-full min-h-0 flex-1">
           {#each images as src, i (src)}
-            <enhanced:img
+            <img
               {src}
               alt={project.title}
               class="absolute inset-x-0 w-full object-contain transition-opacity duration-700 ease-in-out {project.id ===
@@ -126,7 +122,7 @@
           {/each}
         </div>
       {:else}
-        <enhanced:img
+        <img
           bind:this={imgEl}
           src={project.img}
           alt={project.title}
