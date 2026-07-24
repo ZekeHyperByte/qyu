@@ -24,8 +24,8 @@
             alt={project.title}
             class="project-image absolute inset-0 h-full w-full object-cover"
           />
-          <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-transparent"></div>
-          <span class="font-label absolute right-2 bottom-2 left-2 text-[11px] font-medium text-white">
+          <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent"></div>
+          <span class="font-label absolute right-3 bottom-3 left-3 text-sm font-semibold tracking-tight text-white sm:text-base">
             {project.title}
           </span>
         </button>

@@ -1,7 +1,12 @@
 import atcsPreview from '$lib/assets/atcs-preview.webp';
 import photonicPreview from '$lib/assets/photonic-preview.webp';
 import lawangBps from '$lib/assets/lawang-bps.webp';
-import seltronikCompro from '$lib/assets/seltronik-compro.png';
+import seltronikComproLoading from '$lib/assets/seltronik-compro-loading.webp';
+import seltronikComproBeranda from '$lib/assets/seltronik-compro-beranda.webp';
+import seltronikComproTentang from '$lib/assets/seltronik-compro-tentang.webp';
+import seltronikComproProduct from '$lib/assets/seltronik-compro-product.webp';
+import seltronikComproSertifikasi from '$lib/assets/seltronik-compro-sertifikasi.webp';
+import seltronikComproKontak from '$lib/assets/seltronik-compro-kontak.webp';
 import medikuPreview from '$lib/assets/mediku-preview.webp';
 
 export type Project = {
@@ -14,6 +19,8 @@ export type Project = {
   industry: string;
   client: string;
   img: string;
+  gallery?: string[];
+  captions?: string[];
   link: string;
 };
 
@@ -60,14 +67,23 @@ export const projects: Project[] = [
   {
     id: 4,
     year: '2023',
-    title: 'Seltronik Website',
+    title: 'Seltronik Company Profile',
     subtitle:
       'Company portal with tiered product access, admin dashboard, and Supabase-powered authentication and content management.',
     category: 'Full-Stack / UI System',
     tags: ['Next.js', 'TypeScript', 'Supabase', 'Framer Motion'],
     industry: 'Corporate / SaaS',
     client: 'PT. Seltronik',
-    img: seltronikCompro,
+    img: seltronikComproBeranda,
+    gallery: [
+      seltronikComproLoading,
+      seltronikComproBeranda,
+      seltronikComproTentang,
+      seltronikComproProduct,
+      seltronikComproSertifikasi,
+      seltronikComproKontak
+    ],
+    captions: ['Loading Screen', 'Homepage', 'About Page', 'Products', 'Certifications', 'Contact Page'],
     link: ''
   },
   {

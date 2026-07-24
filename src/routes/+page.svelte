@@ -27,23 +27,29 @@
   $effect(() => {
     const isOpen = selectedProject !== null;
 
+    const textItems = detailTextEl.children;
+
     if (firstRun) {
       firstRun = false;
       gsap.set(curtainEl, { scaleY: 0 });
-      gsap.set(detailTextEl, { opacity: 0, y: 16 });
+      gsap.set(textItems, { opacity: 0, y: 16 });
       return;
     }
 
     if (isOpen) {
       gsap
         .timeline()
-        .to(curtainEl, { scaleY: 1, duration: 0.6, ease: 'power3.inOut' })
-        .to(detailTextEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '-=0.15');
+        .to(curtainEl, { scaleY: 1, duration: 1.1, ease: 'power2.inOut' })
+        .to(
+          textItems,
+          { opacity: 1, y: 0, duration: 0.7, ease: 'power2.out', stagger: 0.07 },
+          '-=0.5'
+        );
     } else {
       gsap
         .timeline()
-        .to(detailTextEl, { opacity: 0, y: 16, duration: 0.35, ease: 'power2.in' })
-        .to(curtainEl, { scaleY: 0, duration: 0.75, ease: 'power3.inOut' }, '-=0.1');
+        .to(textItems, { opacity: 0, y: 12, duration: 0.3, ease: 'power2.in', stagger: { each: 0.03, from: 'end' } })
+        .to(curtainEl, { scaleY: 0, duration: 1, ease: 'power2.inOut' }, '-=0.15');
     }
   });
 </script>
@@ -83,7 +89,7 @@
         >
           <div
             bind:this={detailTextEl}
-            class="flex min-h-full w-full flex-col justify-center px-8 py-12 opacity-0 lg:px-16"
+            class="flex min-h-full w-full flex-col justify-center px-8 py-12 lg:px-16"
             inert={!selectedProject}
           >
             {#if lastProject}
