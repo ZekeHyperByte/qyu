@@ -9,6 +9,7 @@
 @import '@fontsource/plus-jakarta-sans/latin-500.css';
 @import '@fontsource/plus-jakarta-sans/latin-600.css';
 @import '@fontsource/plus-jakarta-sans/latin-700.css';
+@import '@fontsource/caveat/latin-700.css';
 @import "tailwindcss";
 
 /* === DESIGN SYSTEM: The Digital Curator — Dark Edition === */
@@ -71,6 +72,7 @@
   --font-headline: 'Montserrat', system-ui, sans-serif;
   --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
   --font-label: 'Plus Jakarta Sans', system-ui, sans-serif;
+  --font-doodle: 'Caveat', cursive;
 
   /* Border Radius — "Architectural" sharp corners */
   --radius: 0px;
@@ -333,6 +335,29 @@ body::before {
     -webkit-tap-highlight-color: transparent;
     -webkit-touch-callout: none;
   }
+}
+
+/* Modern thin scrollbar — for scrollable panels that should show a track */
+.scrollbar-modern {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-primary) transparent;
+}
+
+.scrollbar-modern::-webkit-scrollbar {
+  width: 6px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary);
+  border-radius: 999px;
+}
+
+.scrollbar-modern::-webkit-scrollbar-thumb:hover {
+  background-color: var(--color-tertiary);
 }
 
 /* Performance: defer rendering for off-screen sections */
